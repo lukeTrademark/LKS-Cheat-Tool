@@ -7,6 +7,7 @@ from tkinter import *
 from tkinter import ttk
 from functools import partial
 from fileinput import FileInput
+from os import path
 
 def lks_hook():
     
@@ -171,15 +172,15 @@ def construct_inventory_menu():
     inventory_selector.state(["readonly"])
     inventory_selector['values'] = tuple(range(100))
     inventory_selector.grid(column=0, row=1)
-    inventory_contents = keygen("./Tables/Items")
+    inventory_contents = keygen(path.abspath(path.dirname(__file__)+"/Tables/Items"))
     inventory_peek = partial(view_inv_slot, [selected_slot, inventory_contents])
     inventory_selector.bind('<<ComboboxSelected>>', inventory_peek)
     
     global key_item_images
     key_item_images = []
-    key_item_image_names = list_file_read("./Lists/Key_Item_Images")
+    key_item_image_names = list_file_read(path.abspath(path.dirname(__file__)+"/Lists/Key_Item_Images"))
     for image in key_item_image_names:
-        key_item_images.append(PhotoImage(file="./Images/Key_Items/"+image.rstrip()))
+        key_item_images.append(PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Key_Items/"+image.rstrip())))
     
 def construct_kingdom_plan_menu():
     
@@ -193,7 +194,7 @@ def construct_kingdom_plan_menu():
     tab_frames=[]
     kingdom_plan_categories = ["Special", "Power Up", "Castle Town", "Grassland Town", "Farmland", "Stone City", "Soldier Town", "Gourmet Town", "Royal City", "Glamour Town", "Miner\'s Town", "Magical Land (Category)"]
     for tab in kingdom_plan_categories:
-        tab_images.insert(0, PhotoImage(file="./Images/Kingdom_Plan/"+tab+".png"))
+        tab_images.insert(0, PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Kingdom_Plan/"+tab+".png")))
         tab_frames.insert(0, ttk.Frame(kingdom_plan_menu))
         if tab != "Magical Land (Category)":
             kingdom_plan_menu.add(tab_frames[0], text=tab)
@@ -212,9 +213,9 @@ def construct_kingdom_plan_menu():
     index = 0
     for flag in kingdom_plan_flags:
         if kingdom_plan_names[index].startswith("Culinary Academy"):
-            kingdom_plans.append([flag, "Culinary Academy", PhotoImage(file="./Images/Kingdom_Plan/"+kingdom_plan_names[index]+".png"), check_flag(flag), kingdom_plan_placements[index]])
+            kingdom_plans.append([flag, "Culinary Academy", PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Kingdom_Plan/"+kingdom_plan_names[index]+".png")), check_flag(flag), kingdom_plan_placements[index]])
         else:
-            kingdom_plans.append([flag, kingdom_plan_names[index], PhotoImage(file="./Images/Kingdom_Plan/"+kingdom_plan_names[index]+".png"), check_flag(flag), kingdom_plan_placements[index]])
+            kingdom_plans.append([flag, kingdom_plan_names[index], PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Kingdom_Plan/"+kingdom_plan_names[index]+".png")), check_flag(flag), kingdom_plan_placements[index]])
         index+=1
     
     index = 0
@@ -231,7 +232,7 @@ def construct_counter_flag_menu():
     slot = 4
     gcf_top_menu_tab = root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
     
-    counter_flags = keygen("./Tables/Counting_Flags")
+    counter_flags = keygen(path.abspath(path.dirname(__file__) + "/Tables/Counting_Flags"))
     entries = []
     labels = []
     vars = []
