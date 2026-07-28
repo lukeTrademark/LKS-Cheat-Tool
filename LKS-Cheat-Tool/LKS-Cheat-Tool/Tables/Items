@@ -1,0 +1,580 @@
+0	Nothing
+2	Corobo’s Scepter
+9	Hardened Soldier Sword
+12	Grunt Soldier Sword
+15	Steel Knight Sword
+20	Rainbow Wizard Staff
+21	Hardworking Farmer Hoe
+23	Animal Hunter Bow
+29	Buff Lumberjack Axe
+31	Ripped Miner Pickaxe
+32	Giga Carpenter Hammer
+33	Gourmet Cook Pan
+40	Regular Carpenter Mallet
+41	Mega Carpenter Hammer
+47	Gourmet Cook Pan (Unused)
+49	Brainy Doctor Syringe
+50	Eggan Spoon
+51	Broadcaster Microphone
+55	Mountie Chimney Sweep
+56	Green Craftian Pencil
+48	Magenta Craftian Pencil
+69	Onii Man Club
+80	Rat King Battle: Skull
+81	Rat King Battle: Bone
+83	Nothing (Placeholder)
+84	Nothing (Placeholder)
+107	Grunt Soldier Helmet
+110	Hardened Soldier Helmet
+113	Steel Knight Helmet
+117	Rainbow Wizard Hat
+121	Hardworking Farmer Hat
+122	Animal Hunter Hat
+125	Buff Lumberjack Hat
+126	Ripped Miner Hat
+127	Gourmet Cook Hat
+128	Savvy Merchant Hood
+134	Brainy Doctor Head
+135	Regular Carpenter Hat
+136	Eggan Eggshell
+137	Mountie Mountaintop
+138	Broadcaster Antenna
+139	Craftian(?) Helmet (Unused?)
+140	Giga Carpenter Head
+141	Mega Carpenter Mask
+142	Brainy Nurse Hat
+143	Wedding Hat (Patterned)
+144	Wedding Hat (Pink)
+145	Wedding Hat (Green)
+146	Funeral Hat
+159	Onii Horn
+160	Green Windmill Hat (Unused)
+161	Yellow Windmill Hat (Unused)
+162	Cow Skull
+163	Stone Cairn
+164	Sake Bottle and Plate
+165	Strawberry Crown
+166	Propeller
+168	Crown
+300	Howser's Helmet
+301	Howser's Lance
+302	Verde's Quill
+500	Shovel (Unused?)
+501	“Construction Hammer” (Unused?)
+502	“Demolition Hammer” (Unused?)
+710	Pancho's Letter
+1000	Skinny Ray's Hammer
+1001	Skinny Ray's Headgear (Empty)
+1022	Skinny Ray's Penny-Farthing
+1002	Kampbell's Maraca
+1003	Kampbell's Headgear (Empty)
+1004	Corobo's Mother's Item (Empty)
+1005	Corobo's Mother's Headgear (Empty)
+1006	Apricot's Lollipop
+1007	Apricot's Headgear (Empty)
+1008	Scarlet's Item (Empty)
+1009	Scarlet's Headgear (Empty)
+1010	Kokomo Pine's Item (Empty)
+1011	Kokomo Pine's Headgear (Empty)
+1012	Shizuka's Item (Empty)
+1013	Shizuka's Headgear (Empty)
+1014	Spumoni's Item (Empty)
+1015	Spumoni's Headgear (Empty)
+1016	Martel's Item (Empty)
+1017	Martel's Headgear (Empty)
+1018	Ferne's Item (Empty)
+1019	Ferne's Headgear (Empty)
+1020	Liam's Stick (Unused)
+1021	Liam's Headgear (Empty)
+1023	Ginger's Easel
+1024	Ginger's Headgear (Empty)
+1025	Mr. M's Item (Empty)
+1026	Mr. M's Headgear (Empty)
+2000	Cure-in
+2001	Attack-in
+2002	Move-in
+2003	Bomb-run
+2004	Guard-in
+2005	Back-run
+2006	Dummy Scroll 4
+2007	Dummy Scroll 3
+2008	Dummy Scroll 2
+2009	Dummy Scroll 1
+2010	Gold Coins
+2011	Bag of Coins
+2012	Gold Bar
+2013	Precious Treasure
+2014	Golden Treasure
+2015	1kg Gold Bar
+2016	3kg Gold Bar
+2017	5kg Gold Bar
+2018	Hidden Gold
+2019	National Treasure
+2578	Rough Stone
+2020	Sharp Stone
+2021	Black Stone
+2022	Smooth Stone
+2023	Shiny Stone
+2024	Good Stick
+2025	Wooden Board
+2026	Log
+2027	White Lumber
+2028	Good Lumber
+2029	Torn Cloth
+2030	Denim
+2031	Corduroy
+2032	Tapestry
+2033	Crane’s Gift
+2034	Candy Drop
+2035	Chocolate Bar
+2036	Jojoyaki
+2037	Draw Dumpling
+2038	God Bun
+2039	Boiled Egg
+2040	Cheese Omelet
+2041	Giant Egg
+2042	Golden Egg
+2043	Happiness Egg
+2044	Chopstick Gun
+2045	Pog
+2046	Yo-yo
+2047	Minicar
+2048	Robot Model
+2049	Chipped Horn
+2050	Rubber Band
+2051	Wire
+2052	Gum Wrapper
+2053	Hairpin
+2054	Oil Wipes
+2055	Onii Horn
+2056	Sharp Horn
+2057	Huge Horn
+2058	Thick Horn
+2059	Shoelace
+2060	Clip
+2061	Paper Cup
+2062	Broken Umbrella
+2063	Curvy Straw
+2064	California Roll
+2065	White Tangerine
+2066	Aikido Fish
+2067	Dried Fish
+2068	Wanda Fish
+2069	Slig Meat
+2070	Dolly Meat
+2071	Charlie Beef
+2072	Rodeo Meat
+2073	Kool Meat
+2074	Mackaye Meat
+2075	Fried Meat
+2076	Stinky Meat
+2077	Beefy Beef
+2078	Crazy Meat
+2079	Mushy
+2080	Mushssie
+2081	Mushclose
+2082	Rock Mushroom
+2083	Nail Mushroom
+2084	Mardi Grass
+2085	Foie Grass
+2086	Neil de Grass
+2087	Vinnai Grass
+2088	Coup de Grass
+2089	Regular Turnip
+2090	Rash Turnip
+2091	Big Boss Turnip
+2092	Creed Turnip
+2093	Golden Turnip
+2094	Condenser
+2095	Transistor
+2096	IC Chip
+2097	Motherboard
+2098	Hentium 5
+2099	Trash Can
+2100	Cardboard Box
+2101	Jack-in-the-Box
+2102	Piggy Bank
+2103	Money Chest
+2104	Pencil
+2105	Name Pen
+2106	Feather Pen
+2107	Rocket Pencil
+2108	Fountain Pen
+2109	Allez Seaweed
+2110	Roasted Clam
+2111	Big Seaweed
+2112	Maybe Crab
+2113	Day-After Fish
+2114	Fishbone
+2115	Empty Bottle
+2116	C Battery
+2117	Plastic Bag
+2118	Cigarette Butt
+2119	Candy Box
+2120	Broken Dish
+2121	Torn Underwear
+2122	Marble
+2123	Torn Bracelet
+2124	Bent Nail
+2125	Twisted Screw
+2126	Washer
+2127	Paper Airplane
+2128	Old Magazine
+2129	Fighting Game
+2130	Popular RPG
+2131	Simulation Game
+2132	Driving Game
+2133	LKS 4
+2134	Calculator
+2135	Radio
+2136	Word Processor
+2137	Embedded System
+2138	Newest Televideo
+2139	Yarn Ball
+2140	Toothpick
+2141	Receipt
+2142	Empty Can
+2143	Plastic Bottle
+2144	Cow Bones Head
+2145	Onii Horn
+2146	Manly Metal
+2147	Certificate
+2148	Howser Medal
+2149	Hauser-brand gold medal
+2150	Legendary Sword
+2151	Toy Sword
+2152	Wood Sword
+2153	Dried Squid
+2154	Rabbit Sword
+2155	Paperweight (1)
+2156	Paperweight (2)
+2157	Paperweight (3)
+2158	0 (Placeholder)
+2159	1 (Placeholder)
+2160	2 (Placeholder)
+2161	3 (Placeholder)
+2162	4 (Placeholder)
+2163	5 (Placeholder)
+2164	6 (Placeholder)
+2165	Legendary Spear
+2166	Toy Spear
+2167	Bamboo Sword
+2168	Clothesline
+2169	Parasol
+2170	Legendary Staff
+2171	Toy Staff
+2172	Skull Staff
+2173	Rolled Newspaper
+2174	Magical Girl Wand
+2175	Legendary Bow
+2176	Toy Bow
+2177	Robin’s Bow
+2178	Bin Bow
+2179	Cupid’s Bow
+2180	Legendary Axe
+2181	Toy Axe
+2182	Battleaxe
+2183	Triangular Ruler
+2184	Pillow
+2185	Legendary Mallet
+2186	Toy Mallet
+2187	Wooden Mallet
+2188	Drumstick
+2189	Plastic Hammer
+2190	Furry Kilt
+2191	Casual Clothes
+2192	Black Cape
+2193	Grass Mail
+2194	Gauntlet
+2195	Hand Cooler (1)
+2196	Hand Cooler (2)
+2197	Hand Warmer (1)
+2198	Hand Warmer (2)
+2199	Sterile Undies (1)
+2200	Leather Jacket
+2201	Chainmail
+2202	Pancho Poncho
+2203	Legendary Dress
+2204	Legendary Armor
+2205	Hand Cooler (3)
+2206	Hand Warmer (3)
+2207	Lucky Misanga
+2208	Sterile Undies (2)
+2209	Legendary Ring
+2210	Sterile Undies (3)
+2211	Health Undies
+2212	Dude Thong
+2213	Striped Undies
+2214	Legendary Undies
+2215	Mixed Nuts
+2216	Kaki-no-Tane (Rice Crackers)
+2217	Ice Cream
+2218	Low-fat Milk
+2219	Used Record
+2220	DVD Recorder
+2221	TV Stand
+2222	Beard Trimmer
+2223	Machine Oil
+2224	Assembly Wrench Set
+2225	Mayonnaise
+2226	Equipment 67
+2227	Equipment 68
+2228	Equipment 69
+2229	Equipment 70
+2230	Equipment 71
+2231	Equipment 72
+2232	Equipment 73
+2233	Equipment 74
+2234	Equipment 75
+2235	Equipment 76
+2236	Equipment 77
+2237	Equipment 78
+2238	Equipment 79
+2239	Equipment 80
+2240	Equipment 81
+2241	Equipment 82
+2242	Equipment 83
+2243	Equipment 84
+2244	Equipment 85
+2245	Equipment 86
+2246	Equipment 87
+2247	Equipment 88
+2248	Equipment 89
+2249	Equipment 90
+2250	Equipment 91
+2251	Equipment 92
+2252	Equipment 93
+2253	Equipment 94
+2254	Equipment 95
+2255	Equipment 96
+2256	Equipment 97
+2257	Equipment 98
+2258	Equipment 99
+2259	Equipment 100
+2300	Humming 1
+2301	Humming 2
+2302	Humming 3
+2303	Humming 4
+2304	Humming 5
+2305	Humming 6
+2306	Humming 7
+2307	Humming 8
+2308	Humming 9
+2309	Humming 10
+2310	Humming 11
+2311	Humming 12
+2312	Humming 13
+2313	Humming 14
+2314	Humming 15
+2315	Humming 16
+2316	Humming 17
+2317	Humming 18
+2318	Humming 19
+2319	Humming 20
+2320	Humming 21
+2321	Humming 22
+2322	Humming 23
+2323	Humming 24
+2324	Humming 25
+2325	Humming 26
+2326	Humming 27
+2327	Humming 28
+2328	Humming 29
+2329	Humming 30
+2330	Shimejist
+2331	Akumamarine
+2332	Umerald
+2333	Oniski
+2334	Oval
+2335	Ocarnet
+2336	Saifiyer
+2337	Daijinamond
+2338	Toparse
+2339	Marumarine
+2340	Swarm
+2341	Kabutorepasu
+2342	Mokemoke
+2343	Goriraimo
+2344	Yagiwani-tory
+2345	Egg Prince
+2346	Come onto the cutting board.
+2347	Section Chief Parakeet
+2348	Moemacho
+2349	Mashuraten
+2350	Kakirin
+2351	Dirt-Eating Paku-Pakkun
+2352	Ikanimo
+2353	Kino & Take
+2354	Phantom Berry
+2355	Daizu-Dice
+2356	Elf Hunter (Gash-Nuts)
+2357	My Fairy
+2358	Clay-Block Castle of the Clay-Block Tribe
+2359	Sento-ki (Bathhouse Tree)
+2360	Tree-Wrap & Fruit-Wrap
+2361	PANDA Jet
+2362	Gaubug
+2363	Rainbow Snake
+2364	Omike
+2365	Delinquent Wood
+2366	Seafood
+2367	Marble Brothers
+2368	Mai-Home
+2369	Presido
+2370	Uncle Frank
+2371	Blockade Flower
+2372	Nannanou
+2373	Sagittarius
+2374	Dokuryu
+2375	Trauma-Ninaru
+2376	Meganeko
+2377	Scoparu
+2378	Takoreshia
+2379	Nori-chan
+2380	Tulicchu
+2381	Pii & Po
+2382	Nennen
+2383	Fairy Benki-sama & Paper-kun
+2384	Silly Root
+2385	Mochi-Daruma
+2386	Shy Guru-Guru
+2387	Niwa
+2388	Gol-Pago
+2389	Dung-Light
+2390	Crappy Old Geezer / Uncle
+2391	Donburi Brothers
+2392	Mummy-Tori
+2393	Cheesen
+2394	Moja-King & Moja-Soldier
+2395	Kirame
+2396	Chin-Nen
+2397	Stinky-Foot Old Guy
+2398	Mayugen
+2399	Hatock
+2400	Bar-End
+2401	Twin Ghosts
+2402	Lovepon
+2403	Maro-Maro
+2404	Yo-san, Hee-san, Unhei-san
+2405	Horizontal-Striped Horse
+2406	Sakuranbo
+2407	Nose-Hair Old Man
+2408	Yore-Yore
+2409	Maro-chama
+2410	Home
+2411	Resting Parent & Child
+2412	Omochi
+2413	Yurihasu
+2414	Bossy Bug
+2415	Shoes-On Couple
+2416	Eringi
+2417	Match-Loria
+2418	Batton
+2419	Negotiator Cat
+2420	Mosai
+2421	Miss Takina
+2422	Sakuya-konohana
+2423	Slacker Bug
+2424	Finger-Dad
+2425	King
+2426	Usa-tan
+2427	Lip-Man!
+2428	Tamayama-san
+2429	Battonbo
+2430	He-mushi, N-mushi, Na-mushi, No-mushi
+2431	Tokkillus
+2432	Upside-Down Bug
+2433	Rebel Demon K
+2434	Ruru?
+2435	Ruru?
+2436	Ecole
+2437	Jealous Warrior
+2438	Sweet Potato Bug
+2439	Don Burakokko
+2500	Omega-phone
+2501	Sake: Otoroji
+2502	High-Definition TV
+2503	My Beard
+2504	Chilly Fridge
+2505	Diamond Egg Shell
+2506	Amazing Propeller
+2507	The Princess and the Seven Jars
+2508	Legendary Pickaxe
+2509	Sturdy Wood
+2510	Small Flying Camera
+2511	Picture-Story Show Set
+2512	Gift Box
+2513	Martel's Car
+2514	Apple
+2515	Grape
+2516	Mandarin Orange
+2517	Grapefruit
+2518	Turnip
+2519	Watermelon
+2520	Cabbage
+2521	Carrot
+2522	Corn
+2523	Large Sake Bottle
+2524	Picture Book
+2525	King Part
+2526	Dynamite
+2527	Flying Machine Blueprint
+2528	Important Item 29
+2529	Carpenter's Mat
+2530	Vinyl Sheet
+2531	Iron Material
+2532	Rabbit
+2533	Golden Turnip
+2534	Coin
+2535	Boru Bag
+2536	Treasure
+2537	Torch
+2538	Lamp
+2539	Bell
+2540	Log (Long)
+2541	Log (Short)
+2542	Saw
+2543	Stone
+2544	Iron Ore
+2545	Trumpet
+2546	Vegetable Basket
+2547	Fruit Box
+2548	Money Bag
+2549	Shopping Bag
+2550	Meat
+2551	Dish of Food
+2552	Gold Bar
+2553	Wriggling Big Fish
+2554	Galileo's Star Chart
+2555	Letter
+2556	Meat for Campfire
+2557	Mushroom (Found Item)
+2558	Motherboard (Found Item)
+2559	Parcel (Found Item)
+2560	Game Software (Found Item)
+2561	Cardboard Box (Appliance) (Found Item)
+2562	Tickets (2-3) (Found Item)
+2563	Pencil (Found Item)
+2564	Egg (Found Item)
+2565	Bundle of Lumber
+2566	God's Memo: Oni-King
+2567	God's Memo: Dobroke
+2568	God's Memo: Shish-kebab
+2569	God's Memo: Omelet
+2570	God's Memo: TV
+2571	God's Memo: Lon-Soba
+2572	God's Memo: ♪
+2573	Title Castle Signboard
+2574	Found Item: Small Bundle of Arrows
+2575	Found Item: Medium Bundle of Arrows
+2576	Found Item: Large Bundle of Arrows
+2577	Flying Machine: Umbrella
+2578	Gold Star
+2579	Golden Treasure
+2580	Hidden Gold
+2581	Hidden Gold
+2582	National Treasure
+2583	National Treasure
+2584	National Treasure
+2585	National Treasure
+2900	Error Check Item
