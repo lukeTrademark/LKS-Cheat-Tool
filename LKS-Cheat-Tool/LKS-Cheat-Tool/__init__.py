@@ -8,6 +8,7 @@ from tkinter import ttk
 from functools import partial
 from fileinput import FileInput
 from os import path
+from _dbus_bindings import Double
 
 def lks_hook():
     
@@ -126,6 +127,12 @@ def cflag_readout(*args):
     
     args[3].configure(text=out_name.get())
 
+def float_write(*args):
+    
+    var = args[0]
+    pos = args[1]
+    
+    dolphin_memory_engine.write_float(pos, var.get())
     
 def assign_bol(*args):
 
@@ -148,7 +155,32 @@ def view_inv_slot(*args):
     Label(frame, text="Inventory Slot "+str(slot)).grid(column=0, row=2)
     Label(frame, text="ID: "+str(id.hex())).grid(column=0, row=3)
     Label(frame, text="Contents: "+name).grid(column=0, row=4)
-
+    
+def view_citizen(*args):
+    
+    frame = args[0]
+    for info in frame.winfo_children():
+        if frame.winfo_children().index(info) > 1:
+            info.destroy()
+    
+    slot = int(args[1].get())
+    offset = 0x903F6B20 + (452 * slot)
+    
+    index = 0
+    
+    floats = [["X Position", 20, ['normal']], ["Y Position", 24, ['normal']], ["Z Position", 28, ['normal']], ["Rotation", 32, ['readonly']]]
+    vars = []
+    partials = []
+    
+    for flt in floats:
+        vars.insert(0, DoubleVar(value=dolphin_memory_engine.read_float(offset+flt[1])))
+        Label(frame, text=flt[0]).grid(column=0, row=index)
+        Entry(frame, textvariable=vars[0], state=flt[2]).grid(column=1, row=index)
+        partials.insert(0, partial(float_write, vars[0], offset+flt[1]))
+        vars[0].trace_add('write', partials[0])
+        update_loop("float", offset+flt[1], vars[0])
+        index += 1
+    
 def list_file_read(filename):
     
     output = []
@@ -227,6 +259,52 @@ def construct_inventory_menu():
     key_item_image_names = list_file_read(path.abspath(path.dirname(__file__)+"/Lists/Key_Item_Images"))
     for image in key_item_image_names:
         key_item_images.append(PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Key_Items/"+image.rstrip())))
+
+def construct_citizens_menu():
+    
+    global root
+    slot = 2
+    citizens_top_menu_tab = root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
+    
+    index = 24
+    frames = []
+    names = []
+    name_db = [[], []]
+    while (dolphin_memory_engine.read_word(0x903F6B20 + (452 * index)) != 0):
+        offset = 0x903F6B20 + (452 * index)
+        index+=1
+    
+    ttk.Label(citizens_top_menu_tab, text="Citizen Number").grid(column=0, row=0)
+    selected_slot = StringVar()
+    citizen_selector = ttk.Combobox(citizens_top_menu_tab, textvariable=selected_slot)
+    citizen_selector.state(["readonly"])
+    citizen_selector['values'] = tuple(range(index))
+    citizen_selector.grid(column=1, row=0)
+    citizen_readout = ttk.Labelframe(citizens_top_menu_tab, text="aaa")
+    citizen_readout.grid(column=1, row=1)
+    #inventory_contents = keygen(path.abspath(path.dirname(__file__)+"/Tables/Items"))
+    citizen_peek = partial(view_citizen, citizen_readout, selected_slot)
+    citizen_selector.bind('<<ComboboxSelected>>', citizen_peek)
+
+    if False:
+        ctype = dolphin_memory_engine.read_word(offset)
+        gender = dolphin_memory_engine.read_bytes(offset+4, 2)
+        face_id = dolphin_memory_engine.read_bytes(offset+6, 2)
+        name_id = dolphin_memory_engine.read_bytes(offset+8, 2)
+        item_id = dolphin_memory_engine.read_bytes(offset+10, 2)
+        un9 = dolphin_memory_engine.read_bytes(offset+12, 2)
+        un10 = dolphin_memory_engine.read_bytes(offset+14, 2)
+        cur_hp = dolphin_memory_engine.read_bytes(offset+16, 2)
+        max_hp = dolphin_memory_engine.read_bytes(offset+18, 2)
+        x_pos = DoubleVar(value=dolphin_memory_engine.read_float(offset+20))
+        y_pos = DoubleVar(value=dolphin_memory_engine.read_float(offset+24))
+        z_pos = DoubleVar(value=dolphin_memory_engine.read_float(offset+28))
+        rot = dolphin_memory_engine.read_float(offset+32)
+        held_id = dolphin_memory_engine.read_bytes(offset+36, 2)
+        hat_id = dolphin_memory_engine.read_bytes(offset+38, 2)
+        equip_id = dolphin_memory_engine.read_bytes(offset+40, 2)
+        job_id = dolphin_memory_engine.read_byte(offset+236)
+        guard_slot = dolphin_memory_engine.read_byte(offset+437)
     
 def construct_kingdom_plan_menu():
     
@@ -314,6 +392,26 @@ def construct_debug_menu():
     csetter = partial(set_cvar, cflag, cset)
     ttk.Button(counter_frame, text="Send!", command=csetter).grid(column=1, row=2)
 
+    teleport_frame = ttk.Labelframe(debug_top_menu_tab, text="Teleport")
+    teleport_frame.grid(column=2, row=0)
+    
+    xgrid = IntVar(value=0)
+    zgrid = IntVar(value=0)
+    Label(teleport_frame, text= "N/S Grid").grid(column=0, row=0)
+    Label(teleport_frame, text= "E/W Grid").grid(column=1, row=0)
+    Entry(teleport_frame, textvariable=zgrid, width=2).grid(column=0, row=1)
+    Entry(teleport_frame, textvariable=xgrid, width=2).grid(column=1, row=1)
+    tp = partial(teleport, xgrid, zgrid)
+    ttk.Button(teleport_frame, text="Send!", command=tp).grid(column=1, row=2)
+
+def teleport(xgrid, zgrid):
+    
+    x = xgrid.get()
+    z = zgrid.get()
+    
+    dolphin_memory_engine.write_float(0x903F6B34, (x*64)+32)
+    dolphin_memory_engine.write_float(0x903F6B3C, (z*64)+32)
+
 def update_loop(type, pos, var):
 
     global root
@@ -323,9 +421,12 @@ def update_loop(type, pos, var):
     
     if type == "word":
         var.set(dolphin_memory_engine.read_word(pos))
+        
+    if type == "float":
+        var.set(dolphin_memory_engine.read_float(pos))
     
     looper = partial(update_loop, type, pos, var)
-    root.after(1000, looper)
+    root.after(100, looper)
 
 global root
 root = Tk()
@@ -339,6 +440,7 @@ disable_all(root)
 lks_hook()
 
 construct_inventory_menu()
+construct_citizens_menu()
 construct_kingdom_plan_menu()
 construct_debug_menu()
 
