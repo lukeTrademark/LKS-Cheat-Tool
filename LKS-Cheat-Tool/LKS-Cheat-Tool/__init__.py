@@ -38,6 +38,7 @@ def enable_all(section):
             enable_all(widget)
             
 def disable_all(section):
+    
     for widget in section.winfo_children():
         type = widget.widgetName
         if type == "ttk::notebook":
@@ -55,9 +56,9 @@ def check_flag(flag_index):
         flag_start = 0x9041A971
         flag_position = flag_start + (flag_index // 8)
         hex_value = dolphin_memory_engine.read_byte(flag_position)
-        return BooleanVar(value = ((int(hex_value) & 2**(flag_index%8))) > 0)
+        return (int(hex_value) & 2**(flag_index%8)) > 0
     else:
-        return BooleanVar(value = False)
+        return False
 
 def flip_flag(flag_index):
     
@@ -88,12 +89,43 @@ def set_flag(*args):
         else:
             dolphin_memory_engine.write_byte(flag_position, hex_value & ~(2**(args[0].get() % 8)))
 
+def flag_readout(*args):
+    
+    flag = args[0]
+    out_name = args[1]
+    out_state = args[2]
+    
+    flag_table = keygen(path.abspath(path.dirname(__file__)+"/Tables/Flags"))
+    name = read_table(flag_table, str(flag.get()))
+    state = check_flag(flag.get())
+    
+    out_name.set(name)
+    out_state.set(state)
+    
+    args[3].configure(text=out_name.get())
+
 def set_cvar(*args):
     
     if dolphin_memory_engine.is_hooked():
         flag_start = 0x9041AC71
         flag_position = flag_start + args[0].get()
         dolphin_memory_engine.write_byte(flag_position, args[1].get())
+
+def cflag_readout(*args):
+    
+    cflag = args[0]
+    out_name = args[1]
+    out_state = args[2]
+    
+    flag_table = keygen(path.abspath(path.dirname(__file__)+"/Tables/Counter_Flags"))
+    name = read_table(flag_table, str(cflag.get()))
+    state = int(dolphin_memory_engine.read_byte(cflag.get()+0x9041AC71))
+    
+    out_name.set(name)
+    out_state.set(state)
+    
+    args[3].configure(text=out_name.get())
+
     
 def assign_bol(*args):
 
@@ -109,10 +141,10 @@ def view_inv_slot(*args):
         if frame.winfo_children().index(info) > 1:
             info.destroy()
     
-    slot = int(args[0][0].get())
+    slot = int(args[0].get())
     id = dolphin_memory_engine.read_bytes(0x9041E7A4 + (2 * slot), 2)
-    name_key = args[0][1]
-    name = name_key[1][name_key[0].index(str(int(id.hex(), 16)))]
+    name_key = args[1]
+    name = read_table(name_key, str(int(id.hex(), 16)))
     Label(frame, text="Inventory Slot "+str(slot)).grid(column=0, row=2)
     Label(frame, text="ID: "+str(id.hex())).grid(column=0, row=3)
     Label(frame, text="Contents: "+name).grid(column=0, row=4)
@@ -138,6 +170,19 @@ def keygen(filename):
         
     return [keys, outputs]
 
+def read_table(table, key):
+    
+    key_set = table[0]
+    output_set = table[1]
+    
+    if (key_set.count(key)) > 0:
+        result = output_set[key_set.index(key)]
+    else:
+        result = "Not Found"
+    
+    return result
+    
+
 def construct_top_menu():
     
     global root
@@ -145,7 +190,7 @@ def construct_top_menu():
     
     top_menu = ttk.Notebook(frame)
     top_menu.grid(column=0, row=1)
-    top_menu_tabs=[[ttk.Frame(top_menu), "Inventory"], [ttk.Frame(top_menu), "Citizens"], [ttk.Frame(top_menu), "Kingdom Plans"], [ttk.Frame(top_menu), "Debug"]]
+    top_menu_tabs=[[ttk.Frame(top_menu), "Inventory"], [ttk.Frame(top_menu), "Citizens"], [ttk.Frame(top_menu), "Kingdom Plans"], [ttk.Frame(top_menu), "Advanced"]]
     for tab in top_menu_tabs:
         top_menu.add(tab[0], text=tab[1])
         
@@ -163,6 +208,7 @@ def construct_inventory_menu():
     bol_entry = ttk.Entry(bol_frame, textvariable=bol)
     bol_entry.grid(column=0, row=1)
     bol.trace_add("write", bol_send)
+    update_loop("word", 0x9041B350, bol)
     
     standard_inventory = ttk.Labelframe(inv_top_menu_tab, text="Inventory")
     standard_inventory.grid(column=2, row=0)
@@ -173,7 +219,7 @@ def construct_inventory_menu():
     inventory_selector['values'] = tuple(range(100))
     inventory_selector.grid(column=0, row=1)
     inventory_contents = keygen(path.abspath(path.dirname(__file__)+"/Tables/Items"))
-    inventory_peek = partial(view_inv_slot, [selected_slot, inventory_contents])
+    inventory_peek = partial(view_inv_slot, selected_slot, inventory_contents)
     inventory_selector.bind('<<ComboboxSelected>>', inventory_peek)
     
     global key_item_images
@@ -213,9 +259,9 @@ def construct_kingdom_plan_menu():
     index = 0
     for flag in kingdom_plan_flags:
         if kingdom_plan_names[index].startswith("Culinary Academy"):
-            kingdom_plans.append([flag, "Culinary Academy", PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Kingdom_Plan/"+kingdom_plan_names[index]+".png")), check_flag(flag), kingdom_plan_placements[index]])
+            kingdom_plans.append([flag, "Culinary Academy", PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Kingdom_Plan/"+kingdom_plan_names[index]+".png")), BooleanVar(value=check_flag(flag)), kingdom_plan_placements[index]])
         else:
-            kingdom_plans.append([flag, kingdom_plan_names[index], PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Kingdom_Plan/"+kingdom_plan_names[index]+".png")), check_flag(flag), kingdom_plan_placements[index]])
+            kingdom_plans.append([flag, kingdom_plan_names[index], PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Kingdom_Plan/"+kingdom_plan_names[index]+".png")), BooleanVar(value=check_flag(flag)), kingdom_plan_placements[index]])
         index+=1
     
     index = 0
@@ -224,44 +270,8 @@ def construct_kingdom_plan_menu():
         c = kingdom_plan_placements[0:index].count(plan[4])
         ttk.Checkbutton(tab_frames[plan[4]], image=plan[2], command=flip_plan, variable=plan[3]).grid(column=c%9, row=2+(2*(c//9)))
         ttk.Label(tab_frames[plan[4]], text=plan[1]).grid(column=c%9, row=1+(2*(c//9)))
+        update_loop("bit_flag", plan[0], plan[3])
         index += 1
-
-def construct_counter_flag_menu():
-    
-    global root
-    slot = 4
-    gcf_top_menu_tab = root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
-    
-    counter_flags = keygen(path.abspath(path.dirname(__file__) + "/Tables/Counting_Flags"))
-    entries = []
-    labels = []
-    vars = []
-    partials = []
-    separator = ttk.Notebook(gcf_top_menu_tab)
-    tabs = [[ttk.Frame(separator), 1]]
-    width = 6
-    tab = 0
-    c = 0
-    flag = 1
-    for i in range(len(counter_flags[0])):
-        if int(flag) + 1 < int(counter_flags[0][i]):
-            tabs.append([ttk.Frame(separator), counter_flags[0][i]])
-            tab+=1
-            c = 0
-        flag = counter_flags[0][i]
-        vars.append(IntVar(value=dolphin_memory_engine.read_byte(0x9041AC71 + int(flag))))
-        partials.append(partial(set_cvar, [vars[i], flag]))
-        entries.append(Entry(tabs[tab][0], textvariable=vars[i]))
-        labels.append(ttk.Label(tabs[tab][0], text=counter_flags[1][i]))
-        entries[i].grid(column=c%width, row=1+(2*(c//width)))
-        labels[i].grid(column=c%width, row=2*(c//width))
-        vars[i].trace_add('write', partials[i])
-        c += 1
-
-    for t in tabs:
-        separator.add(t[0], text=t[1])
-        
-    separator.grid(column=0,row=0)
     
 def construct_debug_menu():
     
@@ -281,8 +291,13 @@ def construct_debug_menu():
     set = BooleanVar()
     Entry(bit_frame, textvariable=flag, width=4).grid(column=0, row=1)
     ttk.Checkbutton(bit_frame, variable = set).grid(column=1, row=1)
+    flag_name = StringVar(value="")
+    flag_name_label = Label(bit_frame, text=flag_name.get())
+    flag_name_label.grid(column=0, row=2)
+    read_bit_flag = partial(flag_readout, flag, flag_name, set, flag_name_label)
+    flag.trace_add('write', read_bit_flag)
     flipper = partial(set_flag, flag, set)
-    ttk.Button(bit_frame, text="Send!", command=flipper).grid(column=0, row=2)
+    ttk.Button(bit_frame, text="Send!", command=flipper).grid(column=1, row=2)
     
     Label(counter_frame, text="Flag").grid(column=0, row=0)
     Label(counter_frame, text="Value").grid(column=1, row=0)
@@ -291,9 +306,26 @@ def construct_debug_menu():
     cset = IntVar(value=0)
     Entry(counter_frame, textvariable=cflag, width=3).grid(column=0, row=1)
     Entry(counter_frame, textvariable=cset, width=3).grid(column=1, row=1)
+    cflag_name = StringVar(value="")
+    cflag_name_label = Label(counter_frame, text=cflag_name.get())
+    cflag_name_label.grid(column=0, row=2)
+    read_counter_flag = partial(cflag_readout, cflag, cflag_name, cset, cflag_name_label)
+    cflag.trace_add('write', read_counter_flag)
     csetter = partial(set_cvar, cflag, cset)
-    ttk.Button(counter_frame, text="Send!", command=csetter).grid(column=0, row=2)
+    ttk.Button(counter_frame, text="Send!", command=csetter).grid(column=1, row=2)
 
+def update_loop(type, pos, var):
+
+    global root
+
+    if type == "bit_flag":
+        var.set(check_flag(pos))
+    
+    if type == "word":
+        var.set(dolphin_memory_engine.read_word(pos))
+    
+    looper = partial(update_loop, type, pos, var)
+    root.after(1000, looper)
 
 global root
 root = Tk()
@@ -302,13 +334,12 @@ frm = ttk.Frame(root, padding=10)
 frm.grid()
 
 construct_top_menu()
-construct_inventory_menu()
-construct_kingdom_plan_menu()
 
 disable_all(root)
 lks_hook()
 
-#construct_counter_flag_menu()
+construct_inventory_menu()
+construct_kingdom_plan_menu()
 construct_debug_menu()
 
 root.mainloop()
