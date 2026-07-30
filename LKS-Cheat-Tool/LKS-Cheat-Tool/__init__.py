@@ -178,6 +178,7 @@ def view_citizen(*args):
     
     name_db = args[2]
     job_db = args[3]
+    item_db = args[4]
     
     index = 0
     
@@ -194,7 +195,8 @@ def view_citizen(*args):
         update_loop("float", offset+flt[1], vars[0])
         index += 1
     
-    ids = [["Name", 8, name_db, ['normal']], ["Job", 235, job_db, ['normal']]]
+    index = 0
+    ids = [["Name", 8, name_db, ['normal']], ["Job", 235, job_db, ['normal']], ["Hat", 38, item_db, ['normal']], ["Held Item", 36, item_db, ['normal']], ["Equipment", 40, item_db, ['normal']]]
     dropdowns = []
     
     for id in ids:
@@ -206,14 +208,17 @@ def view_citizen(*args):
         else:
             names = id[2][1]
             vars.insert(0, StringVar(value=read_table(id[2], str(slot))))
-        Label(frame, text=id[0]).grid(column=0, row=index)
+        Label(frame, text=id[0]).grid(column=2, row=index)
         dropdowns.insert(0, ttk.Combobox(frame, textvariable=vars[0], state=id[3]))
-        dropdowns[0].grid(column=1, row=index)
+        dropdowns[0].grid(column=3, row=index)
         partials.insert(0, partial(id_write, vars[0], id[2], offset+id[1]))
         dropdowns[0]['values'] = names
         dropdowns[0].bind('<<ComboboxSelected>>', partials[0])
         index += 1
     
+    tp = partial(teleport, [offset + 20, offset + 24, offset + 28], [dolphin_memory_engine.read_float(0x903F6B34), dolphin_memory_engine.read_float(0x903F6B38), dolphin_memory_engine.read_float(0x903F6B3C)])
+    ttk.Button(frame, text = "Warp to Me!", command = tp).grid(column=0, row=4)
+
 def list_file_read(filename):
     
     output = []
@@ -319,24 +324,24 @@ def construct_citizens_menu():
     citizens_top_menu_tab = root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
     
     index = 24
-    frames = []
-    names = []
-    name_db = [[], []]
     while (dolphin_memory_engine.read_word(0x903F6B20 + (452 * index)) != 0):
         offset = 0x903F6B20 + (452 * index)
         index+=1
     
-    ttk.Label(citizens_top_menu_tab, text="Citizen Number").grid(column=0, row=0)
+    selector_organizer = Frame(citizens_top_menu_tab)
+    selector_organizer.grid(column=0, row=0)
+    ttk.Label(selector_organizer, text="Citizen Number").grid(column=0, row=0)
     selected_slot = StringVar()
-    citizen_selector = ttk.Combobox(citizens_top_menu_tab, textvariable=selected_slot)
+    citizen_selector = ttk.Combobox(selector_organizer, textvariable=selected_slot)
     citizen_selector.state(["readonly"])
     citizen_selector['values'] = tuple(range(index))
     citizen_selector.grid(column=1, row=0)
-    citizen_readout = ttk.Labelframe(citizens_top_menu_tab, text="aaa")
-    citizen_readout.grid(column=1, row=1)
+    citizen_readout = ttk.Labelframe(citizens_top_menu_tab, text="Selected")
+    citizen_readout.grid(column=0, row=1)
     name_key = list_file_read(path.abspath(path.dirname(__file__)+"/Lists/Names"))
     job_key = keygen(path.abspath(path.dirname(__file__)+"/Tables/Job_IDs"))
-    citizen_peek = partial(view_citizen, citizen_readout, selected_slot, name_key, job_key)
+    item_key = keygen(path.abspath(path.dirname(__file__)+"/Tables/Items"))
+    citizen_peek = partial(view_citizen, citizen_readout, selected_slot, name_key, job_key, item_key)
     citizen_selector.bind('<<ComboboxSelected>>', citizen_peek)
 
 def construct_kingdom_plan_menu():
@@ -434,16 +439,18 @@ def construct_debug_menu():
     Label(teleport_frame, text= "E/W Grid").grid(column=1, row=0)
     Entry(teleport_frame, textvariable=zgrid, width=2).grid(column=0, row=1)
     Entry(teleport_frame, textvariable=xgrid, width=2).grid(column=1, row=1)
-    tp = partial(teleport, xgrid, zgrid)
+    tp = partial(teleport, [0x903F6B34, 0x903F6B38, 0x903F6B3C], [], [xgrid, "same", zgrid])
     ttk.Button(teleport_frame, text="Send!", command=tp).grid(column=1, row=2)
 
-def teleport(xgrid, zgrid):
-    
-    x = xgrid.get()
-    z = zgrid.get()
-    
-    dolphin_memory_engine.write_float(0x903F6B34, (x*64)+32)
-    dolphin_memory_engine.write_float(0x903F6B3C, (z*64)+32)
+def teleport(var_array, coord_array, grid_array = []):
+
+    for i in tuple(range(3)):
+        if len(grid_array) == 0:
+            if coord_array[i] != "same":
+                dolphin_memory_engine.write_float(var_array[i], coord_array[i])
+        else:
+            if grid_array[i] != "same":
+                dolphin_memory_engine.write_float(var_array[i], (grid_array[i].get()*64)+32)
 
 def update_loop(type, pos, var):
 
