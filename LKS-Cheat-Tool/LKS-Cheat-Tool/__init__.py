@@ -8,7 +8,6 @@ from tkinter import ttk
 from functools import partial
 from fileinput import FileInput
 from os import path
-from _dbus_bindings import Double
 
 def lks_hook():
     
@@ -22,6 +21,7 @@ def lks_hook():
             hooked = True
     
     if not(hooked):
+        dolphin_memory_engine.un_hook()
         root.after(1000, lks_hook)
     else:
         enable_all(root)
@@ -33,7 +33,7 @@ def enable_all(section):
             for tab in widget.winfo_children():
                 widget.tab(tab, state=['normal'])
         else:
-            if (type != "ttk::frame") & (type != "ttk::labelframe") & (type != "frame") & (type != "ttk::canvas") & (type != "ttk::scrollbar"):
+            if (type != "ttk::frame") & (type != "ttk::labelframe") & (type != "frame") & (type != "ttk::canvas") & (type != "ttk::scrollbar") & (type != "ttk::progressbar"):
                 widget.configure(state=['normal'])
         if widget.winfo_children != []:
             enable_all(widget)
@@ -46,7 +46,7 @@ def disable_all(section):
             for tab in widget.winfo_children():
                 widget.tab(tab, state=['disabled'])
         else:
-            if (type != "ttk::frame") & (type != "ttk::labelframe") & (type != "frame") & (type != "ttk::canvas") & (type != "ttk::scrollbar"):
+            if (type != "ttk::frame") & (type != "ttk::labelframe") & (type != "frame") & (type != "ttk::canvas") & (type != "ttk::scrollbar") & (type != "ttk::progressbar"):
                 widget.configure(state=['disabled'])
         if widget.winfo_children != []:
             disable_all(widget)
@@ -127,6 +127,16 @@ def cflag_readout(*args):
     
     args[3].configure(text=out_name.get())
 
+def id_write(new_result, db, pos, err):
+    
+    if len(db) > 2:
+        new_id = db.index(new_result.get())
+    else:
+        new_id = db[0][db[1].index(new_result.get())]
+    
+    dolphin_memory_engine.write_byte(pos, int(new_id) // 256)
+    dolphin_memory_engine.write_byte(pos+1, int(new_id) % 256)
+
 def float_write(*args):
     
     var = args[0]
@@ -166,6 +176,9 @@ def view_citizen(*args):
     slot = int(args[1].get())
     offset = 0x903F6B20 + (452 * slot)
     
+    name_db = args[2]
+    job_db = args[3]
+    
     index = 0
     
     floats = [["X Position", 20, ['normal']], ["Y Position", 24, ['normal']], ["Z Position", 28, ['normal']], ["Rotation", 32, ['readonly']]]
@@ -181,12 +194,32 @@ def view_citizen(*args):
         update_loop("float", offset+flt[1], vars[0])
         index += 1
     
+    ids = [["Name", 8, name_db, ['normal']], ["Job", 235, job_db, ['normal']]]
+    dropdowns = []
+    
+    for id in ids:
+        slot = dolphin_memory_engine.read_bytes(offset+id[1], 2)
+        slot = int(slot.hex(), 16)
+        if len(id[2]) > 2:
+            names = id[2]
+            vars.insert(0, StringVar(value=names[slot]))
+        else:
+            names = id[2][1]
+            vars.insert(0, StringVar(value=read_table(id[2], str(slot))))
+        Label(frame, text=id[0]).grid(column=0, row=index)
+        dropdowns.insert(0, ttk.Combobox(frame, textvariable=vars[0], state=id[3]))
+        dropdowns[0].grid(column=1, row=index)
+        partials.insert(0, partial(id_write, vars[0], id[2], offset+id[1]))
+        dropdowns[0]['values'] = names
+        dropdowns[0].bind('<<ComboboxSelected>>', partials[0])
+        index += 1
+    
 def list_file_read(filename):
     
     output = []
     file = fileinput.input(files=filename)
     for line in file:
-        output.append(line)
+        output.append(line.rstrip())
         
     return output
 
@@ -197,8 +230,8 @@ def keygen(filename):
     file = fileinput.input(files=filename)
     for line in file:
         divorce = line.split('\t')
-        keys.append(divorce[0])
-        outputs.append(divorce[1])
+        keys.append(divorce[0].rstrip())
+        outputs.append(divorce[1].rstrip())
         
     return [keys, outputs]
 
@@ -214,6 +247,25 @@ def read_table(table, key):
     
     return result
     
+def wait_for_hook():
+    
+    global root
+    if len(root.winfo_children()) == 1:
+        loading_frame = ttk.Frame(root)
+        loading_frame.grid(column=0, row=0)
+        Label(loading_frame, text="Waiting for LKS...").grid(column=0, row=0)
+        bar = ttk.Progressbar(loading_frame, mode='indeterminate', length=200)
+        bar.grid(column=1, row=0)
+        bar.start(15)
+        
+    if dolphin_memory_engine.is_hooked():
+        root.winfo_children()[1].destroy()
+        construct_inventory_menu()
+        construct_citizens_menu()
+        construct_kingdom_plan_menu()
+        construct_debug_menu()
+    else:
+        root.after(1000, wait_for_hook)
 
 def construct_top_menu():
     
@@ -221,7 +273,7 @@ def construct_top_menu():
     frame = root.winfo_children()[0]
     
     top_menu = ttk.Notebook(frame)
-    top_menu.grid(column=0, row=1)
+    top_menu.grid(column=0, row=2)
     top_menu_tabs=[[ttk.Frame(top_menu), "Inventory"], [ttk.Frame(top_menu), "Citizens"], [ttk.Frame(top_menu), "Kingdom Plans"], [ttk.Frame(top_menu), "Advanced"]]
     for tab in top_menu_tabs:
         top_menu.add(tab[0], text=tab[1])
@@ -258,7 +310,7 @@ def construct_inventory_menu():
     key_item_images = []
     key_item_image_names = list_file_read(path.abspath(path.dirname(__file__)+"/Lists/Key_Item_Images"))
     for image in key_item_image_names:
-        key_item_images.append(PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Key_Items/"+image.rstrip())))
+        key_item_images.append(PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Key_Items/"+image)))
 
 def construct_citizens_menu():
     
@@ -282,30 +334,11 @@ def construct_citizens_menu():
     citizen_selector.grid(column=1, row=0)
     citizen_readout = ttk.Labelframe(citizens_top_menu_tab, text="aaa")
     citizen_readout.grid(column=1, row=1)
-    #inventory_contents = keygen(path.abspath(path.dirname(__file__)+"/Tables/Items"))
-    citizen_peek = partial(view_citizen, citizen_readout, selected_slot)
+    name_key = list_file_read(path.abspath(path.dirname(__file__)+"/Lists/Names"))
+    job_key = keygen(path.abspath(path.dirname(__file__)+"/Tables/Job_IDs"))
+    citizen_peek = partial(view_citizen, citizen_readout, selected_slot, name_key, job_key)
     citizen_selector.bind('<<ComboboxSelected>>', citizen_peek)
 
-    if False:
-        ctype = dolphin_memory_engine.read_word(offset)
-        gender = dolphin_memory_engine.read_bytes(offset+4, 2)
-        face_id = dolphin_memory_engine.read_bytes(offset+6, 2)
-        name_id = dolphin_memory_engine.read_bytes(offset+8, 2)
-        item_id = dolphin_memory_engine.read_bytes(offset+10, 2)
-        un9 = dolphin_memory_engine.read_bytes(offset+12, 2)
-        un10 = dolphin_memory_engine.read_bytes(offset+14, 2)
-        cur_hp = dolphin_memory_engine.read_bytes(offset+16, 2)
-        max_hp = dolphin_memory_engine.read_bytes(offset+18, 2)
-        x_pos = DoubleVar(value=dolphin_memory_engine.read_float(offset+20))
-        y_pos = DoubleVar(value=dolphin_memory_engine.read_float(offset+24))
-        z_pos = DoubleVar(value=dolphin_memory_engine.read_float(offset+28))
-        rot = dolphin_memory_engine.read_float(offset+32)
-        held_id = dolphin_memory_engine.read_bytes(offset+36, 2)
-        hat_id = dolphin_memory_engine.read_bytes(offset+38, 2)
-        equip_id = dolphin_memory_engine.read_bytes(offset+40, 2)
-        job_id = dolphin_memory_engine.read_byte(offset+236)
-        guard_slot = dolphin_memory_engine.read_byte(offset+437)
-    
 def construct_kingdom_plan_menu():
     
     global root
@@ -418,15 +451,16 @@ def update_loop(type, pos, var):
 
     if type == "bit_flag":
         var.set(check_flag(pos))
-    
+        
     if type == "word":
         var.set(dolphin_memory_engine.read_word(pos))
-        
+            
     if type == "float":
         var.set(dolphin_memory_engine.read_float(pos))
-    
+        
     looper = partial(update_loop, type, pos, var)
     root.after(100, looper)
+
 
 global root
 root = Tk()
@@ -439,10 +473,7 @@ construct_top_menu()
 disable_all(root)
 lks_hook()
 
-construct_inventory_menu()
-construct_citizens_menu()
-construct_kingdom_plan_menu()
-construct_debug_menu()
+wait_for_hook()
 
 root.mainloop()
 
