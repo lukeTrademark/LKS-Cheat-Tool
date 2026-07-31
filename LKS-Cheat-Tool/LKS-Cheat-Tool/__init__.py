@@ -127,12 +127,17 @@ def cflag_readout(*args):
     
     args[3].configure(text=out_name.get())
 
-def id_write(new_result, db, pos, err):
+def id_write(new_result, db, pos, err=0):
+    
+    if not(isinstance(new_result, str)):
+        new = new_result.get()
+    else:
+        new = new_result
     
     if len(db) > 2:
-        new_id = db.index(new_result.get())
+        new_id = db.index(new)
     else:
-        new_id = db[0][db[1].index(new_result.get())]
+        new_id = db[0][db[1].index(new)]
     
     dolphin_memory_engine.write_byte(pos, int(new_id) // 256)
     dolphin_memory_engine.write_byte(pos+1, int(new_id) % 256)
@@ -152,19 +157,17 @@ def assign_bol(*args):
 
 def view_inv_slot(*args):
     
-    global root
-    frame = root.winfo_children()[0].winfo_children()[0].winfo_children()[0].winfo_children()[1]
-    for info in frame.winfo_children():
-        if frame.winfo_children().index(info) > 1:
-            info.destroy()
-    
-    slot = int(args[0].get())
+    frame = args[2]    
+    slot = args[0]
     id = dolphin_memory_engine.read_bytes(0x9041E7A4 + (2 * slot), 2)
     name_key = args[1]
-    name = read_table(name_key, str(int(id.hex(), 16)))
-    Label(frame, text="Inventory Slot "+str(slot)).grid(column=0, row=2)
-    Label(frame, text="ID: "+str(id.hex())).grid(column=0, row=3)
-    Label(frame, text="Contents: "+name).grid(column=0, row=4)
+    name = StringVar(value=read_table(name_key, str(int(id.hex(), 16))))
+    Label(frame, text="Inventory Slot "+str(slot+1)+": ").grid(column=0, row=slot)
+    selector = ttk.Combobox(frame, textvariable=name)
+    selector.grid(column=1, row=slot)
+    selector['values'] = name_key[1]
+    selector.bind('<<ComboboxSelected>>', partial(id_write, name, name_key, 0x9041E7A4 + (2 * slot)))
+    update_loop("id", 0x9041E7A4 + (2 * slot), name, name_key)
     
 def view_citizen(*args):
     
@@ -217,7 +220,7 @@ def view_citizen(*args):
         index += 1
     
     tp = partial(teleport, [offset + 20, offset + 24, offset + 28], [dolphin_memory_engine.read_float(0x903F6B34), dolphin_memory_engine.read_float(0x903F6B38), dolphin_memory_engine.read_float(0x903F6B3C)])
-    ttk.Button(frame, text = "Warp to Me!", command = tp).grid(column=0, row=4)
+    ttk.Button(frame, text = "Warp to Me!", command = tp).grid(column=1, row=4)
 
 def list_file_read(filename):
     
@@ -301,15 +304,17 @@ def construct_inventory_menu():
     
     standard_inventory = ttk.Labelframe(inv_top_menu_tab, text="Inventory")
     standard_inventory.grid(column=2, row=0)
-    ttk.Label(standard_inventory, text="Slot Number").grid(column=0, row=0)
-    selected_slot = StringVar()
-    inventory_selector = ttk.Combobox(standard_inventory, textvariable=selected_slot)
-    inventory_selector.state(["readonly"])
-    inventory_selector['values'] = tuple(range(100))
-    inventory_selector.grid(column=0, row=1)
+    inv_canvas = Canvas(standard_inventory, width=300, height=225)
+    inv_scroll_frame = Frame(inv_canvas)
+    inv_canvas.create_window(0, 0, window=inv_scroll_frame, anchor='nw')
+    inv_canvas.grid(column=0, row=0)
+    inv_scroll_frame.bind("<Configure>", lambda e: inv_canvas.configure(scrollregion=inv_canvas.bbox("all")))
     inventory_contents = keygen(path.abspath(path.dirname(__file__)+"/Tables/Items"))
-    inventory_peek = partial(view_inv_slot, selected_slot, inventory_contents)
-    inventory_selector.bind('<<ComboboxSelected>>', inventory_peek)
+    for i in list(range(100)):
+        view_inv_slot(i, inventory_contents, inv_scroll_frame)
+    inv_scroller = ttk.Scrollbar(standard_inventory, orient='vertical', command=inv_canvas.yview)
+    inv_canvas.configure(yscrollcommand=inv_scroller.set)
+    inv_scroller.grid(column=1, row=0, sticky='ns')
     
     global key_item_images
     key_item_images = []
@@ -333,7 +338,6 @@ def construct_citizens_menu():
     ttk.Label(selector_organizer, text="Citizen Number").grid(column=0, row=0)
     selected_slot = StringVar()
     citizen_selector = ttk.Combobox(selector_organizer, textvariable=selected_slot)
-    citizen_selector.state(["readonly"])
     citizen_selector['values'] = tuple(range(index))
     citizen_selector.grid(column=1, row=0)
     citizen_readout = ttk.Labelframe(citizens_top_menu_tab, text="Selected")
@@ -452,7 +456,7 @@ def teleport(var_array, coord_array, grid_array = []):
             if grid_array[i] != "same":
                 dolphin_memory_engine.write_float(var_array[i], (grid_array[i].get()*64)+32)
 
-def update_loop(type, pos, var):
+def update_loop(type, pos, var, db=[]):
 
     global root
 
@@ -465,7 +469,10 @@ def update_loop(type, pos, var):
     if type == "float":
         var.set(dolphin_memory_engine.read_float(pos))
         
-    looper = partial(update_loop, type, pos, var)
+    if type == "id":
+        var.set(read_table(db, str(int(dolphin_memory_engine.read_bytes(pos, 2).hex(), 16))))
+        
+    looper = partial(update_loop, type, pos, var, db)
     root.after(100, looper)
 
 

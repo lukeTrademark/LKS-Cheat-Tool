@@ -110,137 +110,136 @@
 2017	5kg Gold Bar
 2018	Hidden Gold
 2019	National Treasure
-2578	Rough Stone
-2020	Sharp Stone
-2021	Black Stone
-2022	Smooth Stone
-2023	Shiny Stone
-2024	Good Stick
-2025	Wooden Board
-2026	Log
-2027	White Lumber
-2028	Good Lumber
-2029	Torn Cloth
-2030	Denim
-2031	Corduroy
-2032	Tapestry
-2033	Crane’s Gift
-2034	Candy Drop
-2035	Chocolate Bar
-2036	Jojoyaki
-2037	Draw Dumpling
-2038	God Bun
-2039	Boiled Egg
-2040	Cheese Omelet
-2041	Giant Egg
-2042	Golden Egg
-2043	Happiness Egg
-2044	Chopstick Gun
-2045	Pog
-2046	Yo-yo
-2047	Minicar
-2048	Robot Model
-2049	Chipped Horn
-2050	Rubber Band
-2051	Wire
-2052	Gum Wrapper
-2053	Hairpin
-2054	Oil Wipes
-2055	Onii Horn
-2056	Sharp Horn
-2057	Huge Horn
-2058	Thick Horn
-2059	Shoelace
-2060	Clip
-2061	Paper Cup
-2062	Broken Umbrella
-2063	Curvy Straw
-2064	California Roll
-2065	White Tangerine
-2066	Aikido Fish
-2067	Dried Fish
-2068	Wanda Fish
-2069	Slig Meat
-2070	Dolly Meat
-2071	Charlie Beef
-2072	Rodeo Meat
-2073	Kool Meat
-2074	Mackaye Meat
-2075	Fried Meat
-2076	Stinky Meat
-2077	Beefy Beef
-2078	Crazy Meat
-2079	Mushy
-2080	Mushssie
-2081	Mushclose
-2082	Rock Mushroom
-2083	Nail Mushroom
-2084	Mardi Grass
-2085	Foie Grass
-2086	Neil de Grass
-2087	Vinnai Grass
-2088	Coup de Grass
-2089	Regular Turnip
-2090	Rash Turnip
-2091	Big Boss Turnip
-2092	Creed Turnip
-2093	Golden Turnip
-2094	Condenser
-2095	Transistor
-2096	IC Chip
-2097	Motherboard
-2098	Hentium 5
-2099	Trash Can
-2100	Cardboard Box
-2101	Jack-in-the-Box
-2102	Piggy Bank
-2103	Money Chest
-2104	Pencil
-2105	Name Pen
-2106	Feather Pen
-2107	Rocket Pencil
-2108	Fountain Pen
-2109	Allez Seaweed
-2110	Roasted Clam
-2111	Big Seaweed
-2112	Maybe Crab
-2113	Day-After Fish
-2114	Fishbone
-2115	Empty Bottle
-2116	C Battery
-2117	Plastic Bag
-2118	Cigarette Butt
-2119	Candy Box
-2120	Broken Dish
-2121	Torn Underwear
-2122	Marble
-2123	Torn Bracelet
-2124	Bent Nail
-2125	Twisted Screw
-2126	Washer
-2127	Paper Airplane
-2128	Old Magazine
-2129	Fighting Game
-2130	Popular RPG
-2131	Simulation Game
-2132	Driving Game
-2133	LKS 4
-2134	Calculator
-2135	Radio
-2136	Word Processor
-2137	Embedded System
-2138	Newest Televideo
-2139	Yarn Ball
-2140	Toothpick
-2141	Receipt
-2142	Empty Can
-2143	Plastic Bottle
-2144	Cow Bones Head
-2145	Onii Horn
-2146	Manly Metal
-2147	Certificate
-2148	Howser Medal
-2149	Hauser-brand gold medal
+2020	Rough Stone
+2021	Sharp Stone
+2022	Black Stone
+2023	Smooth Stone
+2024	Shiny Stone
+2025	Good Stick
+2026	Wooden Board
+2027	Log
+2028	White Lumber
+2029	Good Lumber
+2030	Torn Cloth
+2031	Denim
+2032	Corduroy
+2033	Tapestry
+2034	Crane’s Gift
+2035	Candy Drop
+2036	Chocolate Bar
+2037	Jojoyaki
+2038	Draw Dumpling
+2039	God Bun
+2040	Boiled Egg
+2041	Cheese Omelet
+2042	Giant Egg
+2043	Golden Egg
+2044	Happiness Egg
+2045	Chopstick Gun
+2046	Pog
+2047	Yo-yo
+2048	Minicar
+2049	Robot Model
+2050	Chipped Horn
+2051	Rubber Band
+2052	Wire
+2053	Gum Wrapper
+2054	Hairpin
+2055	Oil Wipes
+2056	Onii Horn
+2057	Sharp Horn
+2058	Huge Horn
+2059	Thick Horn
+2060	Shoelace
+2061	Clip
+2062	Paper Cup
+2063	Broken Umbrella
+2064	Curvy Straw
+2065	California Roll
+2066	White Tangerine
+2067	Aikido Fish
+2068	Dried Fish
+2069	Wanda Fish
+2070	Slig Meat
+2071	Dolly Meat
+2072	Charlie Beef
+2073	Rodeo Meat
+2074	Kool Meat
+2075	Mackaye Meat
+2076	Fried Meat
+2077	Stinky Meat
+2078	Beefy Beef
+2079	Crazy Meat
+2080	Mushy
+2081	Mushssie
+2082	Mushclose
+2083	Rock Mushroom
+2084	Nail Mushroom
+2085	Mardi Grass
+2086	Foie Grass
+2087	Neil de Grass
+2088	Vinnai Grass
+2089	Coup de Grass
+2090	Regular Turnip
+2091	Rash Turnip
+2092	Big Boss Turnip
+2093	Creed Turnip
+2094	Golden Turnip
+2095	Condenser
+2096	Transistor
+2097	IC Chip
+2098	Motherboard
+2099	Hentium 5
+2100	Trash Can
+2101	Cardboard Box
+2102	Jack-in-the-Box
+2103	Piggy Bank
+2104	Money Chest
+2105	Pencil
+2106	Name Pen
+2107	Feather Pen
+2108	Rocket Pencil
+2109	Fountain Pen
+2110	Allez Seaweed
+2111	Roasted Clam
+2112	Big Seaweed
+2113	Maybe Crab
+2114	Day-After Fish
+2115	Fishbone
+2116	Empty Bottle
+2117	C Battery
+2118	Plastic Bag
+2119	Cigarette Butt
+2120	Candy Box
+2121	Broken Dish
+2122	Torn Underwear
+2123	Marble
+2124	Torn Bracelet
+2125	Bent Nail
+2126	Twisted Screw
+2127	Washer
+2128	Paper Airplane
+2129	Old Magazine
+2130	Fighting Game
+2131	Popular RPG
+2132	Simulation Game
+2133	Driving Game
+2134	LKS 4
+2135	Calculator
+2136	Radio
+2137	Word Processor
+2138	Embedded System
+2139	Newest Televideo
+2140	Yarn Ball
+2141	Toothpick
+2142	Receipt
+2143	Empty Can
+2144	Plastic Bottle
+2145	Cow Bones Head
+2146	Onii Horn
+2147	Manly Metal
+2148	Certificate
+2149	Howser Medal
 2150	Legendary Sword
 2151	Toy Sword
 2152	Wood Sword
