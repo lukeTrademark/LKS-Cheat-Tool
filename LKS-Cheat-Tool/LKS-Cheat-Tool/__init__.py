@@ -155,6 +155,16 @@ def assign_bol(*args):
     if (bol != "") & (bol <= 2**32):
         dolphin_memory_engine.write_word(0x9041B350, bol)
 
+def create_flag_box(flag, var, frame, name="none", image=""):
+    
+    flipper = partial(flip_flag, flag)
+    if image != "":
+        checkbox = ttk.Checkbutton(frame, image=image, command=flipper, variable=var)
+    else:
+        checkbox = ttk.Checkbutton(frame, text=name, command=flipper, variable=var)
+    update_loop("bit_flag", flag, var)
+    return checkbox
+
 def view_inv_slot(*args):
     
     frame = args[2]    
@@ -292,18 +302,16 @@ def construct_inventory_menu():
     slot = 1
     inv_top_menu_tab = root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
     
-    bol_frame = Frame(inv_top_menu_tab)
-    bol_frame.grid(column=0, row=0)
-    ttk.Label(bol_frame, text="Bol Count").grid(column=0, row=0)
+    ttk.Label(inv_top_menu_tab, text="Bol Count").grid(column=0, row=0)
     bol = IntVar(value=0)
     bol_send = partial(assign_bol, bol)
-    bol_entry = ttk.Entry(bol_frame, textvariable=bol)
+    bol_entry = ttk.Entry(inv_top_menu_tab, textvariable=bol)
     bol_entry.grid(column=0, row=1)
     bol.trace_add("write", bol_send)
     update_loop("word", 0x9041B350, bol)
     
     standard_inventory = ttk.Labelframe(inv_top_menu_tab, text="Inventory")
-    standard_inventory.grid(column=2, row=0)
+    standard_inventory.grid(column=1, row=0, rowspan=10)
     inv_canvas = Canvas(standard_inventory, width=300, height=225)
     inv_scroll_frame = Frame(inv_canvas)
     inv_canvas.create_window(0, 0, window=inv_scroll_frame, anchor='nw')
@@ -321,7 +329,34 @@ def construct_inventory_menu():
     key_item_image_names = list_file_read(path.abspath(path.dirname(__file__)+"/Lists/Key_Item_Images"))
     for image in key_item_image_names:
         key_item_images.append(PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Key_Items/"+image)))
-
+    
+    key_item_notebook = ttk.Notebook(inv_top_menu_tab)
+    key_item_notebook.grid(column=0, row=11, columnspan=2)
+    key_item_tabs = ["Letters & Memos", "Flying Machine", "Art Pieces", "Wonder Spots", "UMA Research", "Delicacy Discovery", "Animal Rescue", "Hum Discography", "Kingstone Collection", "Record Smashing", "Cutscenes"]
+    key_item_frames = []
+    for tab in key_item_tabs:
+        key_item_frames.insert(0, ttk.Frame(key_item_notebook))
+        key_item_notebook.add(key_item_frames[0], text=tab)
+    key_item_frames.reverse()
+    
+    bools = []
+    
+    curr_frame = key_item_frames[0]
+    entries = [[489, "Onii King"], [490, "Duvroc"], [491, "Shishkebaboo"], [492, "Omelet"], [493, "TV Dinnah"], [494, "Long Sauvage"], [495, "Jumbo Champloon"], [0, "Onii King"], [0, "Duvroc"], [0, "Shishkebaboo"], [0, "Omelet"], [0, "TV Dinnah"], [0, "Long Sauvage"], [0, "Jumbo Champloon"]]
+    index = 0
+    for slot in entries:
+        bools.insert(0, BooleanVar())
+        if index < 7:
+            name = "Letter - " + slot[1]
+        else:
+            name = "God Memo - " + slot[1]
+        for jpg in key_item_images:
+            if jpg.cget('file').find(name) != -1:
+                image = jpg
+        Label(curr_frame, text=name).grid(column=index%7, row=2*(index//7))
+        create_flag_box(slot[0], bools[0], curr_frame, name, image).grid(column=index%7, row=(2*(index//7))+1)
+        index += 1
+        
 def construct_citizens_menu():
     
     global root
@@ -386,11 +421,9 @@ def construct_kingdom_plan_menu():
     
     index = 0
     for plan in kingdom_plans:
-        flip_plan = partial(flip_flag, plan[0])
         c = kingdom_plan_placements[0:index].count(plan[4])
-        ttk.Checkbutton(tab_frames[plan[4]], image=plan[2], command=flip_plan, variable=plan[3]).grid(column=c%9, row=2+(2*(c//9)))
+        create_flag_box(plan[0], plan[3], tab_frames[plan[4]], plan[1], plan[2]).grid(column=c%9, row=2+(2*(c//9)))
         ttk.Label(tab_frames[plan[4]], text=plan[1]).grid(column=c%9, row=1+(2*(c//9)))
-        update_loop("bit_flag", plan[0], plan[3])
         index += 1
     
 def construct_debug_menu():
@@ -448,7 +481,7 @@ def construct_debug_menu():
 
 def teleport(var_array, coord_array, grid_array = []):
 
-    for i in tuple(range(3)):
+    for i in list(range(3)):
         if len(grid_array) == 0:
             if coord_array[i] != "same":
                 dolphin_memory_engine.write_float(var_array[i], coord_array[i])
