@@ -357,6 +357,27 @@ def construct_inventory_menu():
         create_flag_box(slot[0], bools[0], curr_frame, name, image).grid(column=index%7, row=(2*(index//7))+1)
         index += 1
     
+    curr_frame = key_item_frames[1]
+    entries = keygen(path.abspath(path.dirname(__file__)+"/Tables/Flying_Machine"))
+    for i in list(range(len(entries[0]))):
+        bools.insert(0, BooleanVar())
+        name = entries[1][i]
+        for jpg in key_item_images:
+            if jpg.cget('file').find(name) != -1:
+                image = jpg
+        if i == 0:
+            Label(curr_frame, text=name).grid(column=0, row=0)
+            create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, image).grid(column=0, row=1, rowspan=3)
+        if i == 7:
+            Label(curr_frame, text=name).grid(column=3, row=2, columnspan=2)
+            create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, image).grid(column=3, row=3, columnspan=2)
+        if (i != 0) & (i < 5):
+            Label(curr_frame, text=name).grid(column=i, row=0)
+            create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, image).grid(column=i, row=1)
+        if (i > 4) & (i != 7):
+            Label(curr_frame, text=name).grid(column=i-4, row=2)
+            create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, image).grid(column=i-4, row=3)
+    
     curr_frame = key_item_frames[3]
     entries = keygen(path.abspath(path.dirname(__file__)+"/Tables/Wonder_Spots"))
     for i in list(range(len(entries[0]))):
