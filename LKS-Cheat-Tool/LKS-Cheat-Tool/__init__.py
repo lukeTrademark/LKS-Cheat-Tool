@@ -8,6 +8,7 @@ from tkinter import ttk
 from functools import partial
 from fileinput import FileInput
 from os import path
+from os import listdir
 
 def lks_hook():
     
@@ -56,6 +57,8 @@ def check_flag(flag_index):
     if dolphin_memory_engine.is_hooked():
         flag_start = 0x9041A971
         flag_position = flag_start + (flag_index // 8)
+        if flag_index > 100000:
+            flag_position = flag_index // 8
         hex_value = dolphin_memory_engine.read_byte(flag_position)
         return (int(hex_value) & 2**(flag_index%8)) > 0
     else:
@@ -65,18 +68,15 @@ def flip_flag(flag_index):
     
     if dolphin_memory_engine.is_hooked():
         flag_start = 0x9041A971
-        
         flag_position = flag_start + (flag_index // 8)
-        
+        if flag_index > 100000:
+            flag_position = flag_index // 8
         hex_value = dolphin_memory_engine.read_byte(flag_position)
-        
         is_active = ((int(hex_value) & 2**(flag_index%8))) > 0
-        
         if (is_active):
             new_hex = ((int(hex_value) - 2**(flag_index%8)))
         else:
             new_hex = ((int(hex_value) + 2**(flag_index%8)))
-    
         dolphin_memory_engine.write_byte(flag_position, new_hex)
 
 def set_flag(*args):
@@ -248,6 +248,7 @@ def keygen(filename):
     file = fileinput.input(files=filename)
     for line in file:
         divorce = line.split('\t')
+        divorce.append("")
         keys.append(divorce[0].rstrip())
         outputs.append(divorce[1].rstrip())
         
@@ -326,7 +327,7 @@ def construct_inventory_menu():
     
     global key_item_images
     key_item_images = []
-    key_item_image_names = list_file_read(path.abspath(path.dirname(__file__)+"/Lists/Key_Item_Images"))
+    key_item_image_names = listdir(path.abspath(path.dirname(__file__)+"/Images/Key_Items"))
     for image in key_item_image_names:
         key_item_images.append(PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Key_Items/"+image)))
     
@@ -378,6 +379,22 @@ def construct_inventory_menu():
             Label(curr_frame, text=name).grid(column=i-4, row=2)
             create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, image).grid(column=i-4, row=3)
     
+    art_canvas = Canvas(key_item_frames[2], width=1168, height=350)
+    curr_frame = Frame(art_canvas)
+    art_canvas.create_window(0, 0, window=curr_frame, anchor='nw')
+    art_canvas.grid(column=0, row=0)
+    curr_frame.bind("<Configure>", lambda e: art_canvas.configure(scrollregion=art_canvas.bbox("all")))
+    entries = keygen(path.abspath(path.dirname(__file__)+"/Tables/Art"))
+    for i in list(range(len(entries[0]))):
+        bools.insert(0, BooleanVar())
+        name = entries[1][i]
+        key_item_images.insert(0, PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Art/"+name.replace('\\n', ' ')+".png")))
+        Label(curr_frame, text=name.replace("\\n", "\n")).grid(column=i%10, row=1+(2*(i//10)))
+        create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, key_item_images[0]).grid(column=i%10, row=2+(2*(i//10)))
+    art_scroller = ttk.Scrollbar(key_item_frames[2], orient='vertical', command=art_canvas.yview)
+    art_canvas.configure(yscrollcommand=art_scroller.set)
+    art_scroller.grid(column=1, row=0, sticky='ns')
+
     curr_frame = key_item_frames[3]
     entries = keygen(path.abspath(path.dirname(__file__)+"/Tables/Wonder_Spots"))
     for i in list(range(len(entries[0]))):
