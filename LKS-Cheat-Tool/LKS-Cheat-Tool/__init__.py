@@ -356,7 +356,16 @@ def construct_inventory_menu():
         Label(curr_frame, text=name).grid(column=index%7, row=2*(index//7))
         create_flag_box(slot[0], bools[0], curr_frame, name, image).grid(column=index%7, row=(2*(index//7))+1)
         index += 1
-        
+    
+    curr_frame = key_item_frames[3]
+    entries = keygen(path.abspath(path.dirname(__file__)+"/Tables/Wonder_Spots"))
+    for i in list(range(len(entries[0]))):
+        bools.insert(0, BooleanVar())
+        name = entries[1][i]
+        key_item_images.insert(0, PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Wonder_Spots/"+name+".png")))
+        Label(curr_frame, text=name).grid(column=i%10, row=1+(2*(i//10)))
+        create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, key_item_images[0]).grid(column=i%10, row=2+(2*(i//10)))
+    
 def construct_citizens_menu():
     
     global root
