@@ -293,7 +293,7 @@ def construct_top_menu():
     
     top_menu = ttk.Notebook(frame)
     top_menu.grid(column=0, row=2)
-    top_menu_tabs=[[ttk.Frame(top_menu), "Inventory"], [ttk.Frame(top_menu), "Citizens"], [ttk.Frame(top_menu), "Kingdom Plans"], [ttk.Frame(top_menu), "Advanced"]]
+    top_menu_tabs=[[ttk.Frame(top_menu), "Inventory"], [ttk.Frame(top_menu), "Game State"], [ttk.Frame(top_menu), "Citizens"], [ttk.Frame(top_menu), "Kingdom Plans"], [ttk.Frame(top_menu), "Advanced"]]
     for tab in top_menu_tabs:
         top_menu.add(tab[0], text=tab[1])
         
@@ -411,7 +411,7 @@ def construct_inventory_menu():
 def construct_citizens_menu():
     
     global root
-    slot = 2
+    slot = 3
     citizens_top_menu_tab = root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
     
     index = 24
@@ -437,7 +437,7 @@ def construct_citizens_menu():
 def construct_kingdom_plan_menu():
     
     global root
-    slot = 3
+    slot = 4
     kp_top_menu_tab = root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
    
     kingdom_plan_menu = ttk.Notebook(kp_top_menu_tab)
@@ -480,7 +480,7 @@ def construct_kingdom_plan_menu():
 def construct_debug_menu():
     
     global root
-    slot = 4
+    slot = 5
     debug_top_menu_tab = root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
     
     bit_frame = ttk.Labelframe(debug_top_menu_tab, text="Bit Flags")
