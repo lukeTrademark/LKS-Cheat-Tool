@@ -245,7 +245,7 @@ def keygen(filename):
     
     keys = []
     outputs = []
-    file = fileinput.input(files=filename)
+    file = fileinput.input(files=filename+".tsv")
     for line in file:
         divorce = line.split('\t')
         divorce.append("")
