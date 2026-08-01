@@ -354,7 +354,7 @@ def construct_inventory_menu():
         for jpg in key_item_images:
             if jpg.cget('file').find(name) != -1:
                 image = jpg
-        Label(curr_frame, text=name).grid(column=index%7, row=2*(index//7))
+        Label(curr_frame, text=name.replace(" - ", "\n")).grid(column=index%7, row=2*(index//7))
         create_flag_box(slot[0], bools[0], curr_frame, name, image).grid(column=index%7, row=(2*(index//7))+1)
         index += 1
     
@@ -379,7 +379,7 @@ def construct_inventory_menu():
             Label(curr_frame, text=name).grid(column=i-4, row=2)
             create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, image).grid(column=i-4, row=3)
     
-    art_canvas = Canvas(key_item_frames[2], width=1168, height=350)
+    art_canvas = Canvas(key_item_frames[2], width=1168, height=500)
     curr_frame = Frame(art_canvas)
     art_canvas.create_window(0, 0, window=curr_frame, anchor='nw')
     art_canvas.grid(column=0, row=0)
@@ -395,14 +395,18 @@ def construct_inventory_menu():
     art_canvas.configure(yscrollcommand=art_scroller.set)
     art_scroller.grid(column=1, row=0, sticky='ns')
 
-    curr_frame = key_item_frames[3]
-    entries = keygen(path.abspath(path.dirname(__file__)+"/Tables/Wonder_Spots"))
-    for i in list(range(len(entries[0]))):
-        bools.insert(0, BooleanVar())
-        name = entries[1][i]
-        key_item_images.insert(0, PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Wonder_Spots/"+name+".png")))
-        Label(curr_frame, text=name).grid(column=i%10, row=1+(2*(i//10)))
-        create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, key_item_images[0]).grid(column=i%10, row=2+(2*(i//10)))
+    books = [[3, "/Tables/Wonder_Spots", (0x9041e71a * 8) + 1, "Wonder Spot", "Wonder_Spots", 10], [6, "/Tables/Animals", (0x9041e76a * 8) + 1, "Animal", "Animal_Entries", 7], [7, "/Tables/Hums", (0x9041e73a * 8) + 1, "Tunesmith", "Hum_Pages", 10], [8, "/Tables/Kingstones", (0x9041e75a * 8) + 1, "Jewel", "Kingstones", 7], [10, "/Tables/Cutscenes", (0x9041e72a * 8) + 1, "Video Archive", "Cutscene_Thumbnails", 9]]
+    for book in books:
+        curr_frame = key_item_frames[book[0]]
+        entries = keygen(path.abspath(path.dirname(__file__)+book[1]))
+        offset = book[2]
+        width = book[5]
+        for i in list(range(len(entries[0]))):
+            bools.insert(0, BooleanVar())
+            name = entries[1][i]
+            key_item_images.insert(0, PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/"+book[4]+"/"+name+".png")))
+            Label(curr_frame, text=name).grid(column=i%width, row=1+(2*(i//width)))
+            create_flag_box(offset + int(entries[0][i]), bools[0], curr_frame, name, key_item_images[0]).grid(column=i%width, row=2+(2*(i//width)))
     
 def construct_citizens_menu():
     
