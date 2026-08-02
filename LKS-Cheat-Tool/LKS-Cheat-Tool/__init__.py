@@ -229,7 +229,7 @@ def view_citizen(*args):
         dropdowns[0].bind('<<ComboboxSelected>>', partials[0])
         index += 1
     
-    tp = partial(teleport, [offset + 20, offset + 24, offset + 28], [dolphin_memory_engine.read_float(0x903F6B34), dolphin_memory_engine.read_float(0x903F6B38), dolphin_memory_engine.read_float(0x903F6B3C)])
+    tp = partial(teleport, [offset + 20, offset + 24, offset + 28], ["corobo"])
     ttk.Button(frame, text = "Warp to Me!", command = tp).grid(column=1, row=4)
 
 def list_file_read(filename):
@@ -535,14 +535,18 @@ def construct_debug_menu():
 
 def teleport(var_array, coord_array, grid_array = []):
 
-    for i in list(range(3)):
-        if len(grid_array) == 0:
-            if coord_array[i] != "same":
-                dolphin_memory_engine.write_float(var_array[i], coord_array[i])
-        else:
-            if grid_array[i] != "same":
-                dolphin_memory_engine.write_float(var_array[i], (grid_array[i].get()*64)+32)
-
+    if coord_array[0] != "corobo":
+        for i in list(range(3)):
+            if len(grid_array) == 0:
+                if coord_array[i] != "same":
+                    dolphin_memory_engine.write_float(var_array[i], coord_array[i])
+            else:
+                if grid_array[i] != "same":
+                    dolphin_memory_engine.write_float(var_array[i], (grid_array[i].get()*64)+32)
+    else:
+        dolphin_memory_engine.write_bytes(var_array[0], dolphin_memory_engine.read_bytes(0x903f6b34, 12))
+        dolphin_memory_engine.write_bytes(var_array[0]+28, dolphin_memory_engine.read_bytes(0x903f6b50, 16))
+        
 def update_loop(type, pos, var, db=[]):
 
     global root
