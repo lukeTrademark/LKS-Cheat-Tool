@@ -18,7 +18,7 @@ def lks_hook():
     dolphin_memory_engine.hook()
     
     if (dolphin_memory_engine.is_hooked()):
-        if (dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3EXJ"):
+        if (dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3EXJ") | (dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3P99"):
             hooked = True
     
     if not(hooked):
@@ -245,7 +245,7 @@ def keygen(filename):
     
     keys = []
     outputs = []
-    file = fileinput.input(files=filename+".tsv")
+    file = fileinput.input(files=filename+".tsv", encoding='utf-8')
     for line in file:
         divorce = line.split('\t')
         divorce.append("")
@@ -384,7 +384,10 @@ def construct_inventory_menu():
     art_canvas.create_window(0, 0, window=curr_frame, anchor='nw')
     art_canvas.grid(column=0, row=0)
     curr_frame.bind("<Configure>", lambda e: art_canvas.configure(scrollregion=art_canvas.bbox("all")))
-    entries = keygen(path.abspath(path.dirname(__file__)+"/Tables/Art"))
+    if dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3EXJ":
+        entries = keygen(path.abspath(path.dirname(__file__)+"/Tables/Art_US"))
+    else:
+        entries = keygen(path.abspath(path.dirname(__file__)+"/Tables/Art_EU"))
     for i in list(range(len(entries[0]))):
         bools.insert(0, BooleanVar())
         name = entries[1][i]
@@ -395,7 +398,7 @@ def construct_inventory_menu():
     art_canvas.configure(yscrollcommand=art_scroller.set)
     art_scroller.grid(column=1, row=0, sticky='ns')
 
-    books = [[3, "/Tables/Wonder_Spots", (0x9041e71a * 8) + 1, "Wonder Spot", "Wonder_Spots", 10], [6, "/Tables/Animals", (0x9041e76a * 8) + 1, "Animal", "Animal_Entries", 7], [7, "/Tables/Hums", (0x9041e73a * 8) + 1, "Tunesmith", "Hum_Pages", 10], [8, "/Tables/Kingstones", (0x9041e75a * 8) + 1, "Jewel", "Kingstones", 7], [10, "/Tables/Cutscenes", (0x9041e72a * 8) + 1, "Video Archive", "Cutscene_Thumbnails", 9]]
+    books = [[3, "/Tables/Wonder_Spots", (0x9041e71a * 8) + 1, "Wonder Spot", "Wonder_Spots", 10], [6, "/Tables/Animals", (0x9041e76a * 8) + 1, "Animal", "Animal_Entries", 7], [7, "/Tables/Hums", (0x9041e73a * 8) + 1, "Tunesmith", "Hum_Pages", 6], [8, "/Tables/Kingstones", (0x9041e75a * 8) + 1, "Jewel", "Kingstones", 7], [10, "/Tables/Cutscenes", (0x9041e72a * 8) + 1, "Video Archive", "Cutscene_Thumbnails", 9]]
     for book in books:
         curr_frame = key_item_frames[book[0]]
         entries = keygen(path.abspath(path.dirname(__file__)+book[1]))
