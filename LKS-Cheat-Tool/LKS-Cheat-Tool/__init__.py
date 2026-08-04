@@ -333,13 +333,22 @@ def construct_inventory_menu():
     
     key_item_notebook = ttk.Notebook(inv_top_menu_tab)
     key_item_notebook.grid(column=0, row=11, columnspan=2)
-    key_item_tabs = ["Letters & Memos", "Flying Machine", "Art Pieces", "Wonder Spots", "UMA Research", "Delicacy Discovery", "Animal Rescue", "Hum Discography", "Kingstone Collection", "Record Smashing", "Cutscenes"]
+    key_item_tabs = [["Letters & Memos", "", -1], ["Flying Machine", "", -1], ["Art Pieces", "Art Gallery", -1], ["Wonder Spots", "Book - Wonder Spot", -1], ["UMA Research", "Book - UMA", -1], ["Delicacy Discovery", "Book - Gourmet", -1], ["Animal Rescue", "Book - Animal", -1], ["Hum Discography", "Book - Tunesmith", -1], ["Kingstone Collection", "Book - Jewel", -1], ["Record Smashing", "Book - Records", -1], ["Cutscenes", "Book - Video Archive", 7]]
     key_item_frames = []
     for tab in key_item_tabs:
         key_item_frames.insert(0, ttk.Frame(key_item_notebook))
-        key_item_notebook.add(key_item_frames[0], text=tab)
+        key_item_notebook.add(key_item_frames[0], text=tab[0])
+        if tab[1] != "":
+            for jpg in key_item_images:
+                if jpg.cget('file').find(tab[1]) != -1:
+                    Label(key_item_frames[0], image = jpg).grid(column=0, row=0)
+        if tab[2] != -1:
+            if tab[1].find("Book") != -1:
+                create_flag_box(tab[2], BooleanVar(), key_item_frames[0], tab[1].removeprefix("Book - ")+"\nBook Enabled").grid(column=1, row=0)
+            else:
+                create_flag_box(tab[2], BooleanVar(), key_item_frames[0], tab[1] +"\nEnabled").grid(column=1, row=0)
     key_item_frames.reverse()
-    
+
     bools = []
     
     curr_frame = key_item_frames[0]
@@ -379,10 +388,10 @@ def construct_inventory_menu():
             Label(curr_frame, text=name).grid(column=i-4, row=2)
             create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, image).grid(column=i-4, row=3)
     
-    art_canvas = Canvas(key_item_frames[2], width=1168, height=500)
+    art_canvas = Canvas(key_item_frames[2], width=1168, height=425)
     curr_frame = Frame(art_canvas)
     art_canvas.create_window(0, 0, window=curr_frame, anchor='nw')
-    art_canvas.grid(column=0, row=0)
+    art_canvas.grid(column=0, row=1)
     curr_frame.bind("<Configure>", lambda e: art_canvas.configure(scrollregion=art_canvas.bbox("all")))
     if dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3EXJ":
         entries = keygen(path.abspath(path.dirname(__file__)+"/Tables/Art_US"))
@@ -396,7 +405,7 @@ def construct_inventory_menu():
         create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, key_item_images[0]).grid(column=i%10, row=2+(2*(i//10)))
     art_scroller = ttk.Scrollbar(key_item_frames[2], orient='vertical', command=art_canvas.yview)
     art_canvas.configure(yscrollcommand=art_scroller.set)
-    art_scroller.grid(column=1, row=0, sticky='ns')
+    art_scroller.grid(column=1, row=1, sticky='ns')
 
     books = [[3, "/Tables/Wonder_Spots", (0x9041e71a * 8) + 1, "Wonder Spot", "Wonder_Spots", 10], [6, "/Tables/Animals", (0x9041e76a * 8) + 1, "Animal", "Animal_Entries", 7], [7, "/Tables/Hums", (0x9041e73a * 8) + 1, "Tunesmith", "Hum_Pages", 6], [8, "/Tables/Kingstones", (0x9041e75a * 8) + 1, "Jewel", "Kingstones", 7], [10, "/Tables/Cutscenes", (0x9041e72a * 8) + 1, "Video Archive", "Cutscene_Thumbnails", 9]]
     for book in books:
@@ -530,14 +539,14 @@ def construct_debug_menu():
     Label(teleport_frame, text= "E/W Grid").grid(column=1, row=0)
     Entry(teleport_frame, textvariable=zgrid, width=2).grid(column=0, row=1)
     Entry(teleport_frame, textvariable=xgrid, width=2).grid(column=1, row=1)
-    tp = partial(teleport, [0x903F6B34, 0x903F6B38, 0x903F6B3C], [], [xgrid, "same", zgrid])
+    tp = partial(teleport, [0x903F6B34, 0x903F6B38, 0x903F6B3C], ["grid"], [xgrid, "same", zgrid])
     ttk.Button(teleport_frame, text="Send!", command=tp).grid(column=1, row=2)
 
 def teleport(var_array, coord_array, grid_array = []):
 
     if coord_array[0] != "corobo":
         for i in list(range(3)):
-            if len(grid_array) == 0:
+            if coord_array[0] != "grid":
                 if coord_array[i] != "same":
                     dolphin_memory_engine.write_float(var_array[i], coord_array[i])
             else:
