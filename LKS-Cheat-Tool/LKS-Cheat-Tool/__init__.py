@@ -56,7 +56,8 @@ def get_save_pos(location):
     
     init_save_pos = 0x903E8900
     save_pos_ptr = 0x8055759C
-    curr_save_pos = dolphin_memory_engine.read_word(save_pos_ptr)
+    #curr_save_pos = dolphin_memory_engine.read_word(save_pos_ptr)
+    curr_save_pos = 0x903E8900
     
     return location - init_save_pos + curr_save_pos
 
