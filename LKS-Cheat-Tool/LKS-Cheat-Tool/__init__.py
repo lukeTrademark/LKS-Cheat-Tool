@@ -55,8 +55,11 @@ def disable_all(section):
 def get_save_pos(location):
     
     init_save_pos = 0x903E8900
-    save_pos_ptr = 0x8055759C
-    #curr_save_pos = dolphin_memory_engine.read_word(save_pos_ptr)
+    if dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3EXJ":
+        save_pos_ptr = 0x8055759C
+    else:
+        save_pos_ptr = 0x80555ABC   
+    curr_save_pos = dolphin_memory_engine.read_word(save_pos_ptr)
     curr_save_pos = 0x903E8900
     
     return location - init_save_pos + curr_save_pos
@@ -585,7 +588,11 @@ def update_loop(type, pos, var, db=[]):
         var.set(read_table(db, str(int(dolphin_memory_engine.read_bytes(get_save_pos(pos), 2).hex(), 16))))
         
     looper = partial(update_loop, type, pos, var, db)
-    root.after(100, looper)
+    
+    if (type == "id") | (type == "flag"):
+        root.after(1000, looper)
+    else:
+        root.after(100, looper)
 
 
 global root
