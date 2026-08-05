@@ -427,7 +427,7 @@ def construct_inventory_menu():
         for i in list(range(len(entries[0]))):
             bools.insert(0, BooleanVar())
             name = entries[1][i]
-            key_item_images.insert(0, PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/"+book[3]+"/"+name+".png")))
+            key_item_images.insert(0, PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/"+book[3]+"/"+name.replace("?", "QMARK")+".png")))
             Label(curr_frame, text=name).grid(column=i%width, row=1+(2*(i//width)))
             create_flag_box(offset + int(entries[0][i]), bools[0], curr_frame, name, key_item_images[0]).grid(column=i%width, row=2+(2*(i//width)))
     
@@ -566,7 +566,7 @@ def teleport(var_array, coord_array, grid_array = []):
     else:
         dolphin_memory_engine.write_bytes(var_array[0], dolphin_memory_engine.read_bytes(get_save_pos(0x903f6b34), 12))
         dolphin_memory_engine.write_bytes(var_array[0]+28, dolphin_memory_engine.read_bytes(get_save_pos(0x903f6b50), 16))
-        
+
 def update_loop(type, pos, var, db=[]):
 
     global root
