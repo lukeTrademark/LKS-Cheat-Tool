@@ -162,7 +162,10 @@ def create_flag_box(flag, var, frame, name="none", image=""):
         checkbox = ttk.Checkbutton(frame, image=image, command=flipper, variable=var)
     else:
         checkbox = ttk.Checkbutton(frame, text=name, command=flipper, variable=var)
-    update_loop("bit_flag", flag, var)
+    if flag == -1:
+        checkbox.configure(state=['disabled'])
+    else:
+        update_loop("bit_flag", flag, var)
     return checkbox
 
 def view_inv_slot(*args):
@@ -333,7 +336,7 @@ def construct_inventory_menu():
     
     key_item_notebook = ttk.Notebook(inv_top_menu_tab)
     key_item_notebook.grid(column=0, row=11, columnspan=2)
-    key_item_tabs = [["Letters & Memos", "", -1], ["Flying Machine", "", -1], ["Art Pieces", "Art Gallery", -1], ["Wonder Spots", "Book - Wonder Spot", -1], ["UMA Research", "Book - UMA", -1], ["Delicacy Discovery", "Book - Gourmet", -1], ["Animal Rescue", "Book - Animal", -1], ["Hum Discography", "Book - Tunesmith", -1], ["Kingstone Collection", "Book - Jewel", -1], ["Record Smashing", "Book - Records", -1], ["Cutscenes", "Book - Video Archive", 7]]
+    key_item_tabs = [["Letters & Memos", "", -1], ["Flying Machine", "", -1], ["Art Pieces", "Art Gallery", 488], ["Wonder Spots", "Book - Wonder Spot", 480], ["UMA Research", "Book - UMA", 481], ["Delicacy Discovery", "Book - Gourmet", 482], ["Animal Rescue", "Book - Animal", 483], ["Hum Discography", "Book - Tunesmith", 484], ["Kingstone Collection", "Book - Jewel", 485], ["Record Smashing", "Book - Records", 486], ["Cutscenes", "Book - Video Archive", -1]]
     key_item_frames = []
     for tab in key_item_tabs:
         key_item_frames.insert(0, ttk.Frame(key_item_notebook))
@@ -352,7 +355,7 @@ def construct_inventory_menu():
     bools = []
     
     curr_frame = key_item_frames[0]
-    entries = [[489, "Onii King"], [490, "Duvroc"], [491, "Shishkebaboo"], [492, "Omelet"], [493, "TV Dinnah"], [494, "Long Sauvage"], [495, "Jumbo Champloon"], [0, "Onii King"], [0, "Duvroc"], [0, "Shishkebaboo"], [0, "Omelet"], [0, "TV Dinnah"], [0, "Long Sauvage"], [0, "Jumbo Champloon"]]
+    entries = [[489, "Onii King"], [490, "Duvroc"], [491, "Shishkebaboo"], [492, "Omelet"], [493, "TV Dinnah"], [494, "Long Sauvage"], [495, "Jumbo Champloon"], [-1, "Onii King"], [-1, "Duvroc"], [-1, "Shishkebaboo"], [-1, "Omelet"], [-1, "TV Dinnah"], [-1, "Long Sauvage"], [-1, "Jumbo Champloon"]]
     index = 0
     for slot in entries:
         bools.insert(0, BooleanVar())
@@ -391,7 +394,7 @@ def construct_inventory_menu():
     art_canvas = Canvas(key_item_frames[2], width=1168, height=425)
     curr_frame = Frame(art_canvas)
     art_canvas.create_window(0, 0, window=curr_frame, anchor='nw')
-    art_canvas.grid(column=0, row=1)
+    art_canvas.grid(column=0, row=1, columnspan=2)
     curr_frame.bind("<Configure>", lambda e: art_canvas.configure(scrollregion=art_canvas.bbox("all")))
     if dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3EXJ":
         entries = keygen(path.abspath(path.dirname(__file__)+"/Tables/Art_US"))
@@ -405,7 +408,7 @@ def construct_inventory_menu():
         create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, key_item_images[0]).grid(column=i%10, row=2+(2*(i//10)))
     art_scroller = ttk.Scrollbar(key_item_frames[2], orient='vertical', command=art_canvas.yview)
     art_canvas.configure(yscrollcommand=art_scroller.set)
-    art_scroller.grid(column=1, row=1, sticky='ns')
+    art_scroller.grid(column=2, row=1, sticky='ns')
 
     books = [[3, "/Tables/Wonder_Spots", (0x9041e71a * 8) + 1, "Wonder Spot", "Wonder_Spots", 10], [6, "/Tables/Animals", (0x9041e76a * 8) + 1, "Animal", "Animal_Entries", 7], [7, "/Tables/Hums", (0x9041e73a * 8) + 1, "Tunesmith", "Hum_Pages", 6], [8, "/Tables/Kingstones", (0x9041e75a * 8) + 1, "Jewel", "Kingstones", 7], [10, "/Tables/Cutscenes", (0x9041e72a * 8) + 1, "Video Archive", "Cutscene_Thumbnails", 9]]
     for book in books:
