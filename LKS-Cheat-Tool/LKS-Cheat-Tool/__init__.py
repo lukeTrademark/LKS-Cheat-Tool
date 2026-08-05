@@ -52,13 +52,21 @@ def disable_all(section):
         if widget.winfo_children != []:
             disable_all(widget)
 
+def get_save_pos(location):
+    
+    init_save_pos = 0x903E8900
+    save_pos_ptr = 0x8055759C
+    curr_save_pos = dolphin_memory_engine.read_word(save_pos_ptr)
+    
+    return location - init_save_pos + curr_save_pos
+
 def check_flag(flag_index):
     
     if dolphin_memory_engine.is_hooked():
-        flag_start = 0x9041A971
+        flag_start = get_save_pos(0x9041A971)
         flag_position = flag_start + (flag_index // 8)
         if flag_index > 100000:
-            flag_position = flag_index // 8
+            flag_position = get_save_pos(flag_index // 8)
         hex_value = dolphin_memory_engine.read_byte(flag_position)
         return (int(hex_value) & 2**(flag_index%8)) > 0
     else:
@@ -67,10 +75,10 @@ def check_flag(flag_index):
 def flip_flag(flag_index):
     
     if dolphin_memory_engine.is_hooked():
-        flag_start = 0x9041A971
+        flag_start = get_save_pos(0x9041A971)
         flag_position = flag_start + (flag_index // 8)
         if flag_index > 100000:
-            flag_position = flag_index // 8
+            flag_position = get_save_pos(flag_index // 8)
         hex_value = dolphin_memory_engine.read_byte(flag_position)
         is_active = ((int(hex_value) & 2**(flag_index%8))) > 0
         if (is_active):
@@ -82,7 +90,7 @@ def flip_flag(flag_index):
 def set_flag(*args):
 
     if dolphin_memory_engine.is_hooked():
-        flag_start = 0x9041A971
+        flag_start = get_save_pos(0x9041A971)
         flag_position = flag_start + (args[0].get() // 8)
         hex_value = dolphin_memory_engine.read_byte(flag_position)
         if args[1].get():
@@ -108,7 +116,7 @@ def flag_readout(*args):
 def set_cvar(*args):
     
     if dolphin_memory_engine.is_hooked():
-        flag_start = 0x9041AC71
+        flag_start = get_save_pos(0x9041AC71)
         flag_position = flag_start + args[0].get()
         dolphin_memory_engine.write_byte(flag_position, args[1].get())
 
@@ -120,7 +128,7 @@ def cflag_readout(*args):
     
     flag_table = keygen(path.abspath(path.dirname(__file__)+"/Tables/Counter_Flags"))
     name = read_table(flag_table, str(cflag.get()))
-    state = int(dolphin_memory_engine.read_byte(cflag.get()+0x9041AC71))
+    state = int(dolphin_memory_engine.read_byte(get_save_pos(cflag.get()+0x9041AC71)))
     
     out_name.set(name)
     out_state.set(state)
@@ -153,7 +161,7 @@ def assign_bol(*args):
 
     bol = args[0].get()
     if (bol != "") & (bol <= 2**32):
-        dolphin_memory_engine.write_word(0x9041B350, bol)
+        dolphin_memory_engine.write_word(get_save_pos(0x9041B350), bol)
 
 def create_flag_box(flag, var, frame, name="none", image=""):
     
@@ -172,7 +180,7 @@ def view_inv_slot(*args):
     
     frame = args[2]    
     slot = args[0]
-    id = dolphin_memory_engine.read_bytes(0x9041E7A4 + (2 * slot), 2)
+    id = dolphin_memory_engine.read_bytes(get_save_pos(0x9041E7A4 + (2 * slot)), 2)
     name_key = args[1]
     name = StringVar(value=read_table(name_key, str(int(id.hex(), 16))))
     Label(frame, text="Inventory Slot "+str(slot+1)+": ").grid(column=0, row=slot)
@@ -190,7 +198,7 @@ def view_citizen(*args):
             info.destroy()
     
     slot = int(args[1].get())
-    offset = 0x903F6B20 + (452 * slot)
+    offset = get_save_pos(0x903F6B20 + (452 * slot))
     
     name_db = args[2]
     job_db = args[3]
@@ -296,7 +304,7 @@ def construct_top_menu():
     
     top_menu = ttk.Notebook(frame)
     top_menu.grid(column=0, row=2)
-    top_menu_tabs=[[ttk.Frame(top_menu), "Inventory"], [ttk.Frame(top_menu), "Game State"], [ttk.Frame(top_menu), "Citizens"], [ttk.Frame(top_menu), "Kingdom Plans"], [ttk.Frame(top_menu), "Advanced"]]
+    top_menu_tabs=[[ttk.Frame(top_menu), "General"], [ttk.Frame(top_menu), "Game State"], [ttk.Frame(top_menu), "Citizens"], [ttk.Frame(top_menu), "Kingdom Plans"], [ttk.Frame(top_menu), "Advanced"]]
     for tab in top_menu_tabs:
         top_menu.add(tab[0], text=tab[1])
         
@@ -430,7 +438,7 @@ def construct_citizens_menu():
     citizens_top_menu_tab = root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
     
     index = 24
-    while (dolphin_memory_engine.read_word(0x903F6B20 + (452 * index)) != 0):
+    while (dolphin_memory_engine.read_word(get_save_pos(0x903F6B20 + (452 * index))) != 0):
         offset = 0x903F6B20 + (452 * index)
         index+=1
     
@@ -542,7 +550,7 @@ def construct_debug_menu():
     Label(teleport_frame, text= "E/W Grid").grid(column=1, row=0)
     Entry(teleport_frame, textvariable=zgrid, width=2).grid(column=0, row=1)
     Entry(teleport_frame, textvariable=xgrid, width=2).grid(column=1, row=1)
-    tp = partial(teleport, [get_save_pos(0x903F6B34), get_save_pos(0x903F6B38), get_save_position(0x903F6B3C)], ["grid"], [xgrid, "same", zgrid])
+    tp = partial(teleport, [get_save_pos(0x903F6B34), get_save_pos(0x903F6B38), get_save_pos(0x903F6B3C)], ["grid"], [xgrid, "same", zgrid])
     ttk.Button(teleport_frame, text="Send!", command=tp).grid(column=1, row=2)
 
 def teleport(var_array, coord_array, grid_array = []):
@@ -556,8 +564,8 @@ def teleport(var_array, coord_array, grid_array = []):
                 if grid_array[i] != "same":
                     dolphin_memory_engine.write_float(var_array[i], (grid_array[i].get()*64)+32)
     else:
-        dolphin_memory_engine.write_bytes(get_save_pos(var_array[0]), dolphin_memory_engine.read_bytes(get_save_pos(0x903f6b34), 12))
-        dolphin_memory_engine.write_bytes(get_save_pos(var_array[0]+28), dolphin_memory_engine.read_bytes(get_save_pos(0x903f6b50), 16))
+        dolphin_memory_engine.write_bytes(var_array[0], dolphin_memory_engine.read_bytes(get_save_pos(0x903f6b34), 12))
+        dolphin_memory_engine.write_bytes(var_array[0]+28, dolphin_memory_engine.read_bytes(get_save_pos(0x903f6b50), 16))
         
 def update_loop(type, pos, var, db=[]):
 
