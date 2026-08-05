@@ -410,16 +410,16 @@ def construct_inventory_menu():
     art_canvas.configure(yscrollcommand=art_scroller.set)
     art_scroller.grid(column=2, row=1, sticky='ns')
 
-    books = [[3, "/Tables/Wonder_Spots", (0x9041e71a * 8) + 1, "Wonder Spot", "Wonder_Spots", 10], [6, "/Tables/Animals", (0x9041e76a * 8) + 1, "Animal", "Animal_Entries", 7], [7, "/Tables/Hums", (0x9041e73a * 8) + 1, "Tunesmith", "Hum_Pages", 6], [8, "/Tables/Kingstones", (0x9041e75a * 8) + 1, "Jewel", "Kingstones", 7], [10, "/Tables/Cutscenes", (0x9041e72a * 8) + 1, "Video Archive", "Cutscene_Thumbnails", 9]]
+    books = [[3, "/Tables/Wonder_Spots", (0x9041e71a * 8) + 1, "Wonder_Spots", 10], [4, "/Tables/UMA_Logs", 0, "UMA_Pages", 12], [5, "/Tables/Gourmet_Entries", 0, "Gourmet_Pages", 10], [6, "/Tables/Animals", (0x9041e76a * 8) + 1, "Animal_Entries", 7], [7, "/Tables/Hums", (0x9041e73a * 8) + 1, "Hum_Pages", 10], [8, "/Tables/Kingstones", (0x9041e75a * 8) + 1, "Kingstones", 7], [10, "/Tables/Cutscenes", (0x9041e72a * 8) + 1, "Cutscene_Thumbnails", 9]]
     for book in books:
         curr_frame = key_item_frames[book[0]]
         entries = keygen(path.abspath(path.dirname(__file__)+book[1]))
         offset = book[2]
-        width = book[5]
+        width = book[4]
         for i in list(range(len(entries[0]))):
             bools.insert(0, BooleanVar())
             name = entries[1][i]
-            key_item_images.insert(0, PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/"+book[4]+"/"+name+".png")))
+            key_item_images.insert(0, PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/"+book[3]+"/"+name+".png")))
             Label(curr_frame, text=name).grid(column=i%width, row=1+(2*(i//width)))
             create_flag_box(offset + int(entries[0][i]), bools[0], curr_frame, name, key_item_images[0]).grid(column=i%width, row=2+(2*(i//width)))
     
@@ -509,7 +509,7 @@ def construct_debug_menu():
     flag = IntVar(value=0)
     set = BooleanVar()
     Entry(bit_frame, textvariable=flag, width=4).grid(column=0, row=1)
-    ttk.Checkbutton(bit_frame, variable = set).grid(column=1, row=1)
+    ttk.Checkbutton(bit_frame, variable=set).grid(column=1, row=1)
     flag_name = StringVar(value="")
     flag_name_label = Label(bit_frame, text=flag_name.get())
     flag_name_label.grid(column=0, row=2)
@@ -542,7 +542,7 @@ def construct_debug_menu():
     Label(teleport_frame, text= "E/W Grid").grid(column=1, row=0)
     Entry(teleport_frame, textvariable=zgrid, width=2).grid(column=0, row=1)
     Entry(teleport_frame, textvariable=xgrid, width=2).grid(column=1, row=1)
-    tp = partial(teleport, [0x903F6B34, 0x903F6B38, 0x903F6B3C], ["grid"], [xgrid, "same", zgrid])
+    tp = partial(teleport, [get_save_pos(0x903F6B34), get_save_pos(0x903F6B38), get_save_position(0x903F6B3C)], ["grid"], [xgrid, "same", zgrid])
     ttk.Button(teleport_frame, text="Send!", command=tp).grid(column=1, row=2)
 
 def teleport(var_array, coord_array, grid_array = []):
@@ -556,8 +556,8 @@ def teleport(var_array, coord_array, grid_array = []):
                 if grid_array[i] != "same":
                     dolphin_memory_engine.write_float(var_array[i], (grid_array[i].get()*64)+32)
     else:
-        dolphin_memory_engine.write_bytes(var_array[0], dolphin_memory_engine.read_bytes(0x903f6b34, 12))
-        dolphin_memory_engine.write_bytes(var_array[0]+28, dolphin_memory_engine.read_bytes(0x903f6b50, 16))
+        dolphin_memory_engine.write_bytes(get_save_pos(var_array[0]), dolphin_memory_engine.read_bytes(get_save_pos(0x903f6b34), 12))
+        dolphin_memory_engine.write_bytes(get_save_pos(var_array[0]+28), dolphin_memory_engine.read_bytes(get_save_pos(0x903f6b50), 16))
         
 def update_loop(type, pos, var, db=[]):
 
@@ -567,13 +567,13 @@ def update_loop(type, pos, var, db=[]):
         var.set(check_flag(pos))
         
     if type == "word":
-        var.set(dolphin_memory_engine.read_word(pos))
+        var.set(dolphin_memory_engine.read_word(get_save_pos(pos)))
             
     if type == "float":
-        var.set(dolphin_memory_engine.read_float(pos))
+        var.set(dolphin_memory_engine.read_float(get_save_pos(pos)))
         
     if type == "id":
-        var.set(read_table(db, str(int(dolphin_memory_engine.read_bytes(pos, 2).hex(), 16))))
+        var.set(read_table(db, str(int(dolphin_memory_engine.read_bytes(get_save_pos(pos), 2).hex(), 16))))
         
     looper = partial(update_loop, type, pos, var, db)
     root.after(100, looper)
