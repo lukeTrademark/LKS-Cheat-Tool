@@ -412,7 +412,7 @@ def construct_inventory_menu():
     for i in list(range(len(entries[0]))):
         bools.insert(0, BooleanVar())
         name = entries[1][i]
-        key_item_images.insert(0, PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Art/"+name.replace('\\n', ' ')+".png")))
+        key_item_images.insert(0, PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Art/"+name.replace('\\n', ' ').replace('*', 'ASTERISK')+".png")))
         Label(curr_frame, text=name.replace("\\n", "\n")).grid(column=i%10, row=1+(2*(i//10)))
         create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, key_item_images[0]).grid(column=i%10, row=2+(2*(i//10)))
     art_scroller = ttk.Scrollbar(key_item_frames[2], orient='vertical', command=art_canvas.yview)
