@@ -246,6 +246,8 @@ def view_citizen(*args):
         slot = int(slot.hex(), 16)
         if len(id[2]) > 2:
             names = id[2]
+            if slot >= len(names):
+                slot = len(names) - 1
             vars.insert(0, StringVar(value=names[slot]))
         else:
             names = id[2][1]
@@ -272,7 +274,7 @@ def find_and_build_citizen(*args):
     item_db = args[4]
     
     for info in frame.winfo_children():
-        if frame.winfo_children().index(info) > 1:
+        if frame.winfo_children().index(info) > 0:
             info.destroy()
             
     if var.get() != 0:
@@ -487,11 +489,12 @@ def construct_citizens_menu():
     
     rg_section = ttk.Labelframe(citizens_top_menu_tab, text="Royal Guard")
     rg_section.grid(column=2, row=0, rowspan=5)
+    rg_scroll_frame = create_scroll_frame(rg_section, 0, 1, 750, 420, 3)
     rg_subframes = []
     chartypes = []
     partials = []
     for index in list(range(30)):
-        rg_subframes.append(ttk.Labelframe(rg_section, text = "Slot " + str(index+1)))
+        rg_subframes.append(ttk.Labelframe(rg_scroll_frame, text = "Slot " + str(index+1)))
         slot = 0x92BC4310 + (index * 1736)
         chartypes.append(IntVar(value=0))
         partials.append(partial(find_and_build_citizen, chartypes[index], rg_subframes[index], name_key, job_key, item_key))
@@ -625,17 +628,20 @@ def update_loop(type, pos, var, db=[]):
         var.set(dolphin_memory_engine.read_float(get_save_pos(pos)))
         
     if type == "id":
+        value = int(dolphin_memory_engine.read_bytes(get_save_pos(pos), 2).hex(), 16)
         if isinstance(db[0], str):
-            var.set(db[int(dolphin_memory_engine.read_bytes(get_save_pos(pos), 2).hex(), 16)])
+            if value >= len(db):
+                value = len(db) - 1
+            var.set(db[value])
         else:
-            var.set(read_table(db, str(int(dolphin_memory_engine.read_bytes(get_save_pos(pos), 2).hex(), 16))))
+            var.set(read_table(db, str(value)))
         
     looper = partial(update_loop, type, pos, var, db)
     
-    if (type == "id") | (type == "flag"):
-        root.after(1000, looper)
-    else:
+    if type == "float":
         root.after(100, looper)
+    else:
+        root.after(1000, looper)
 
 
 global root
