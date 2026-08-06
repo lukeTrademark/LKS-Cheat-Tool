@@ -215,7 +215,7 @@ def view_citizen(*args):
     partials = []
     
     for flt in floats:
-        vars.insert(0, DoubleVar(value=dolphin_memory_engine.read_float(offset+flt[1])))
+        vars.insert(0, DoubleVar(value=dolphin_memory_engine.read_float(get_save_pos(offset+flt[1]))))
         Label(frame, text=flt[0]).grid(column=0, row=index)
         Entry(frame, textvariable=vars[0], state=flt[2]).grid(column=1, row=index)
         partials.insert(0, partial(float_write, vars[0], offset+flt[1]))
@@ -228,7 +228,7 @@ def view_citizen(*args):
     dropdowns = []
     
     for id in ids:
-        slot = dolphin_memory_engine.read_bytes(offset+id[1], 2)
+        slot = dolphin_memory_engine.read_bytes(get_save_pos(offset+id[1]), 2)
         slot = int(slot.hex(), 16)
         if len(id[2]) > 2:
             names = id[2]
@@ -242,10 +242,15 @@ def view_citizen(*args):
         partials.insert(0, partial(id_write, vars[0], id[2], offset+id[1]))
         dropdowns[0]['values'] = names
         dropdowns[0].bind('<<ComboboxSelected>>', partials[0])
+        update_loop("id", offset+id[1], vars[0], id[2])
         index += 1
     
     tp = partial(teleport, [offset + 20, offset + 24, offset + 28], ["corobo"])
     ttk.Button(frame, text = "Warp to Me!", command = tp).grid(column=1, row=4)
+
+def guard_list():
+    
+    0x92283280
 
 def list_file_read(filename):
     
@@ -585,7 +590,10 @@ def update_loop(type, pos, var, db=[]):
         var.set(dolphin_memory_engine.read_float(get_save_pos(pos)))
         
     if type == "id":
-        var.set(read_table(db, str(int(dolphin_memory_engine.read_bytes(get_save_pos(pos), 2).hex(), 16))))
+        if isinstance(db[0], str):
+            var.set(db[int(dolphin_memory_engine.read_bytes(get_save_pos(pos), 2).hex(), 16)])
+        else:
+            var.set(read_table(db, str(int(dolphin_memory_engine.read_bytes(get_save_pos(pos), 2).hex(), 16))))
         
     looper = partial(update_loop, type, pos, var, db)
     
