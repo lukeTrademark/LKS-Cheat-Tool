@@ -652,9 +652,8 @@ frm.grid()
 construct_top_menu()
 
 disable_all(root)
-lks_hook()
-
 wait_for_hook()
+lks_hook()
 
 root.mainloop()
 
