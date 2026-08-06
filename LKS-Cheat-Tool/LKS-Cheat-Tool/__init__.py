@@ -214,14 +214,15 @@ def view_citizen(*args):
     vars = []
     partials = []
     
-    for flt in floats:
-        vars.insert(0, DoubleVar(value=dolphin_memory_engine.read_float(get_save_pos(offset+flt[1]))))
-        Label(frame, text=flt[0]).grid(column=0, row=index)
-        Entry(frame, textvariable=vars[0], state=flt[2]).grid(column=1, row=index)
-        partials.insert(0, partial(float_write, vars[0], offset+flt[1]))
-        vars[0].trace_add('write', partials[0])
-        update_loop("float", offset+flt[1], vars[0])
-        index += 1
+    if args[5] == 'full':
+        for flt in floats:
+            vars.insert(0, DoubleVar(value=dolphin_memory_engine.read_float(get_save_pos(offset+flt[1]))))
+            Label(frame, text=flt[0]).grid(column=0, row=index)
+            Entry(frame, textvariable=vars[0], state=flt[2]).grid(column=1, row=index)
+            partials.insert(0, partial(float_write, vars[0], offset+flt[1]))
+            vars[0].trace_add('write', partials[0])
+            update_loop("float", offset+flt[1], vars[0])
+            index += 1
     
     index = 0
     ids = [["Name", 8, name_db, ['normal']], ["Job", 235, job_db, ['normal']], ["Hat", 38, item_db, ['normal']], ["Held Item", 36, item_db, ['normal']], ["Equipment", 40, item_db, ['normal']]]
@@ -245,12 +246,33 @@ def view_citizen(*args):
         update_loop("id", offset+id[1], vars[0], id[2])
         index += 1
     
-    tp = partial(teleport, [offset + 20, offset + 24, offset + 28], ["corobo"])
-    ttk.Button(frame, text = "Warp to Me!", command = tp).grid(column=1, row=4)
+    if args[5] == 'full':
+        tp = partial(teleport, [offset + 20, offset + 24, offset + 28], ["corobo"])
+        ttk.Button(frame, text = "Warp to Me!", command = tp).grid(column=1, row=4)
 
-def guard_list():
+def find_and_build_citizen(*args):
     
-    0x92283280
+    var = args[0]
+    frame = args[1]
+    name_db = args[2]
+    job_db = args[3]
+    item_db = args[4]
+    
+    for info in frame.winfo_children():
+        if frame.winfo_children().index(info) > 1:
+            info.destroy()
+            
+    if var.get() != 0:
+        index = 0
+        chartype = 0
+        while (chartype != var.get()) & (index < 500):
+            chartype = dolphin_memory_engine.read_word(get_save_pos(0x903F6B20 + (452 * index)))
+            index += 1
+        index -= 1
+        if index < 499:
+            view_citizen(frame, IntVar(value=index), name_db, job_db, item_db, 'partial')
+        else:
+            Label(frame, text = "oh nooooooo").grid(column=0, row=0)
 
 def list_file_read(filename):
     
@@ -451,20 +473,32 @@ def construct_citizens_menu():
         offset = 0x903F6B20 + (452 * index)
         index+=1
     
-    selector_organizer = Frame(citizens_top_menu_tab)
-    selector_organizer.grid(column=0, row=0)
-    ttk.Label(selector_organizer, text="Citizen Number").grid(column=0, row=0)
+    ttk.Label(citizens_top_menu_tab, text="Citizen Number").grid(column=0, row=0)
     selected_slot = StringVar()
-    citizen_selector = ttk.Combobox(selector_organizer, textvariable=selected_slot)
+    citizen_selector = ttk.Combobox(citizens_top_menu_tab, textvariable=selected_slot)
     citizen_selector['values'] = tuple(range(index))
     citizen_selector.grid(column=1, row=0)
     citizen_readout = ttk.Labelframe(citizens_top_menu_tab, text="Selected")
-    citizen_readout.grid(column=0, row=1)
+    citizen_readout.grid(column=0, row=1, columnspan=2)
     name_key = list_file_read(path.abspath(path.dirname(__file__)+"/Lists/Names"))
     job_key = keygen(path.abspath(path.dirname(__file__)+"/Tables/Job_IDs"))
     item_key = keygen(path.abspath(path.dirname(__file__)+"/Tables/Items"))
-    citizen_peek = partial(view_citizen, citizen_readout, selected_slot, name_key, job_key, item_key)
+    citizen_peek = partial(view_citizen, citizen_readout, selected_slot, name_key, job_key, item_key, 'full')
     citizen_selector.bind('<<ComboboxSelected>>', citizen_peek)
+    
+    rg_section = ttk.Labelframe(citizens_top_menu_tab, text="Royal Guard")
+    rg_section.grid(column=2, row=0, rowspan=5)
+    rg_subframes = []
+    chartypes = []
+    partials = []
+    for index in list(range(30)):
+        rg_subframes.append(ttk.Labelframe(rg_section, text = "Slot " + str(index+1)))
+        slot = 0x92BC4310 + (index * 1736)
+        chartypes.append(IntVar(value=0))
+        partials.append(partial(find_and_build_citizen, chartypes[index], rg_subframes[index], name_key, job_key, item_key))
+        chartypes[index].trace_add('write', partials[index])
+        update_loop("word", slot+648, chartypes[index])
+        rg_subframes[index].grid(column=index%3, row=1+(index//3))
 
 def construct_kingdom_plan_menu():
     
@@ -584,7 +618,9 @@ def update_loop(type, pos, var, db=[]):
         var.set(check_flag(pos))
         
     if type == "word":
-        var.set(dolphin_memory_engine.read_word(get_save_pos(pos)))
+        new = dolphin_memory_engine.read_word(get_save_pos(pos))
+        if var.get() != new:
+            var.set(new)
             
     if type == "float":
         var.set(dolphin_memory_engine.read_float(get_save_pos(pos)))
