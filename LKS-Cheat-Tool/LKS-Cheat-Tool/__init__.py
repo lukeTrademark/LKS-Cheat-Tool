@@ -274,9 +274,8 @@ def find_and_build_citizen(*args):
     item_db = args[4]
     
     for info in frame.winfo_children():
-        if frame.winfo_children().index(info) > 0:
-            info.destroy()
-            
+        info.destroy()
+
     if var.get() != 0:
         index = 0
         chartype = 0
