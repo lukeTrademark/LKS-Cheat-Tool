@@ -180,6 +180,19 @@ def create_flag_box(flag, var, frame, name="none", image=""):
         update_loop("bit_flag", flag, var)
     return checkbox
 
+def create_scroll_frame(upper_frame, column, row, width, height, columnspan=1, rowspan=1):
+    
+    canvas = Canvas(upper_frame, width=width, height=height)
+    frame = Frame(canvas)
+    canvas.create_window(0, 0, window=frame, anchor='nw')
+    canvas.grid(column=column, row=row, columnspan=columnspan, rowspan=rowspan)
+    frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+    scroller = ttk.Scrollbar(upper_frame, orient='vertical', command=canvas.yview)
+    canvas.configure(yscrollcommand=scroller.set)
+    scroller.grid(column=column+columnspan+1, row=row, rowspan=rowspan, sticky='ns')
+
+    return frame
+
 def view_inv_slot(*args):
     
     frame = args[2]    
@@ -355,17 +368,10 @@ def construct_inventory_menu():
     
     standard_inventory = ttk.Labelframe(inv_top_menu_tab, text="Inventory")
     standard_inventory.grid(column=1, row=0, rowspan=10)
-    inv_canvas = Canvas(standard_inventory, width=300, height=225)
-    inv_scroll_frame = Frame(inv_canvas)
-    inv_canvas.create_window(0, 0, window=inv_scroll_frame, anchor='nw')
-    inv_canvas.grid(column=0, row=0)
-    inv_scroll_frame.bind("<Configure>", lambda e: inv_canvas.configure(scrollregion=inv_canvas.bbox("all")))
+    inv_scroll_frame = create_scroll_frame(standard_inventory, 0, 0, 300, 225)
     inventory_contents = keygen(path.abspath(path.dirname(__file__)+"/Tables/Items"))
     for i in list(range(100)):
         view_inv_slot(i, inventory_contents, inv_scroll_frame)
-    inv_scroller = ttk.Scrollbar(standard_inventory, orient='vertical', command=inv_canvas.yview)
-    inv_canvas.configure(yscrollcommand=inv_scroller.set)
-    inv_scroller.grid(column=1, row=0, sticky='ns')
     
     global key_item_images
     key_item_images = []
@@ -430,11 +436,7 @@ def construct_inventory_menu():
             Label(curr_frame, text=name).grid(column=i-4, row=2)
             create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, image).grid(column=i-4, row=3)
     
-    art_canvas = Canvas(key_item_frames[2], width=1168, height=425)
-    curr_frame = Frame(art_canvas)
-    art_canvas.create_window(0, 0, window=curr_frame, anchor='nw')
-    art_canvas.grid(column=0, row=1, columnspan=2)
-    curr_frame.bind("<Configure>", lambda e: art_canvas.configure(scrollregion=art_canvas.bbox("all")))
+    curr_frame = create_scroll_frame(key_item_frames[2], 0, 1, 1168, 425, 2, 1)
     if dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3EXJ":
         entries = keygen(path.abspath(path.dirname(__file__)+"/Tables/Art_US"))
     else:
@@ -445,9 +447,6 @@ def construct_inventory_menu():
         key_item_images.insert(0, PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Art/"+name.replace('\\n', ' ').replace('*', 'ASTERISK')+".png")))
         Label(curr_frame, text=name.replace("\\n", "\n")).grid(column=i%10, row=1+(2*(i//10)))
         create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, key_item_images[0]).grid(column=i%10, row=2+(2*(i//10)))
-    art_scroller = ttk.Scrollbar(key_item_frames[2], orient='vertical', command=art_canvas.yview)
-    art_canvas.configure(yscrollcommand=art_scroller.set)
-    art_scroller.grid(column=2, row=1, sticky='ns')
 
     books = [[3, "/Tables/Wonder_Spots", (0x9041e71a * 8) + 1, "Wonder_Spots", 10], [4, "/Tables/UMA_Logs", 0, "UMA_Pages", 12], [5, "/Tables/Gourmet_Entries", 0, "Gourmet_Pages", 10], [6, "/Tables/Animals", (0x9041e76a * 8) + 1, "Animal_Entries", 7], [7, "/Tables/Hums", (0x9041e73a * 8) + 1, "Hum_Pages", 10], [8, "/Tables/Kingstones", (0x9041e75a * 8) + 1, "Kingstones", 7], [10, "/Tables/Cutscenes", (0x9041e72a * 8) + 1, "Cutscene_Thumbnails", 9]]
     for book in books:
