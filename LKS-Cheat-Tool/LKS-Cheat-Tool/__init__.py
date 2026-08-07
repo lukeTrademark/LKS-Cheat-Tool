@@ -161,11 +161,9 @@ def float_write(*args):
     
     dolphin_memory_engine.write_float(pos, var.get())
     
-def assign_bol(*args):
+def word_write(*args):
 
-    bol = args[0].get()
-    if (bol != "") & (bol <= 2**32):
-        dolphin_memory_engine.write_word(get_save_pos(0x9041B350), bol)
+    dolphin_memory_engine.write_word(get_save_pos(args[1]), args[0].get())
 
 def create_flag_box(flag, var, frame, name="none", image=""):
     
@@ -192,6 +190,18 @@ def create_scroll_frame(upper_frame, column, row, width, height, columnspan=1, r
     scroller.grid(column=column+columnspan+1, row=row, rowspan=rowspan, sticky='ns')
 
     return frame
+
+def create_live_entry(frame, mode, pos):
+    
+    if mode == "word":
+        bol = IntVar()
+        bol.trace_add("write", partial(word_write, bol, pos))
+        update_loop("word", pos, bol)
+    if mode == "float":
+        bol = DoubleVar()
+        bol.trace_add("write", partial(float_write, bol, pos))
+        update_loop("float", pos, bol)
+    return ttk.Entry(frame, textvariable=bol)
 
 def view_inv_slot(*args):
     
@@ -359,16 +369,19 @@ def construct_inventory_menu():
     slot = 1
     inv_top_menu_tab = root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
     
-    ttk.Label(inv_top_menu_tab, text="Bol Count").grid(column=0, row=0)
-    bol = IntVar(value=0)
-    bol_send = partial(assign_bol, bol)
-    bol_entry = ttk.Entry(inv_top_menu_tab, textvariable=bol)
-    bol_entry.grid(column=0, row=1)
-    bol.trace_add("write", bol_send)
-    update_loop("word", 0x9041B350, bol)
+    ttk.Label(inv_top_menu_tab, text="Bol Count").grid(column=0, row=0, sticky='e')
+    create_live_entry(inv_top_menu_tab, "word", 0x9041B350).grid(column=1, row=0, sticky='w')
+    ttk.Label(inv_top_menu_tab, text="Arrow Count").grid(column=0, row=1, sticky='e')
+    create_live_entry(inv_top_menu_tab, "word", 0x92283370).grid(column=1, row=1, sticky='w')
+    ttk.Label(inv_top_menu_tab, text="Brainy Doctor Doses").grid(column=0, row=2, sticky='e')
+    create_live_entry(inv_top_menu_tab, "word", 0x92283388).grid(column=1, row=2, sticky='w')
+    ttk.Label(inv_top_menu_tab, text="Rainbow Wizard Spell Slots").grid(column=0, row=3, sticky='e')
+    create_live_entry(inv_top_menu_tab, "word", 0x9228337C).grid(column=1, row=3, sticky='w')
+    ttk.Label(inv_top_menu_tab, text="Time").grid(column=0, row=4, sticky='e')
+    create_live_entry(inv_top_menu_tab, "float", 0x903E8908).grid(column=1, row=4, sticky='w')
     
     standard_inventory = ttk.Labelframe(inv_top_menu_tab, text="Inventory")
-    standard_inventory.grid(column=1, row=0, rowspan=10)
+    standard_inventory.grid(column=2, row=0, rowspan=5)
     inv_scroll_frame = create_scroll_frame(standard_inventory, 0, 0, 300, 225)
     inventory_contents = keygen(path.abspath(path.dirname(__file__)+"/Tables/Items"))
     for i in list(range(100)):
@@ -381,7 +394,7 @@ def construct_inventory_menu():
         key_item_images.append(PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Key_Items/"+image)))
     
     key_item_notebook = ttk.Notebook(inv_top_menu_tab)
-    key_item_notebook.grid(column=0, row=11, columnspan=2)
+    key_item_notebook.grid(column=0, row=5, columnspan=3)
     key_item_tabs = [["Letters & Memos", "", -1], ["Flying Machine", "", -1], ["Art Pieces", "Art Gallery", 488], ["Wonder Spots", "Book - Wonder Spot", 480], ["UMA Research", "Book - UMA", 481], ["Delicacy Discovery", "Book - Gourmet", 482], ["Animal Rescue", "Book - Animal", 483], ["Hum Discography", "Book - Tunesmith", 484], ["Kingstone Collection", "Book - Jewel", 485], ["Record Smashing", "Book - Records", 486], ["Cutscenes", "Book - Video Archive", -1]]
     key_item_frames = []
     for tab in key_item_tabs:
@@ -488,6 +501,11 @@ def construct_citizens_menu():
     
     rg_section = ttk.Labelframe(citizens_top_menu_tab, text="Royal Guard")
     rg_section.grid(column=2, row=0, rowspan=5)
+    Label(rg_section, text="Royal Guard Cap").grid(column=0, row=0)
+    rg_max = IntVar()
+    Entry(rg_section, textvariable=rg_max).grid(column=1, row=0)
+    rg_max.trace_add('write', partial(set_cvar, IntVar(value=41), rg_max))
+    update_loop('byte', 0x9041AC9A, rg_max)
     rg_scroll_frame = create_scroll_frame(rg_section, 0, 1, 750, 420, 3)
     rg_subframes = []
     chartypes = []
@@ -618,6 +636,9 @@ def update_loop(type, pos, var, db=[]):
     if type == "bit_flag":
         var.set(check_flag(pos))
         
+    if type == "byte":
+        var.set(dolphin_memory_engine.read_byte(get_save_pos(pos)))
+        
     if type == "word":
         new = dolphin_memory_engine.read_word(get_save_pos(pos))
         if var.get() != new:
@@ -625,7 +646,7 @@ def update_loop(type, pos, var, db=[]):
             
     if type == "float":
         var.set(dolphin_memory_engine.read_float(get_save_pos(pos)))
-        
+
     if type == "id":
         value = int(dolphin_memory_engine.read_bytes(get_save_pos(pos), 2).hex(), 16)
         if isinstance(db[0], str):
@@ -634,9 +655,9 @@ def update_loop(type, pos, var, db=[]):
             var.set(db[value])
         else:
             var.set(read_table(db, str(value)))
-        
+
     looper = partial(update_loop, type, pos, var, db)
-    
+
     if type == "float":
         root.after(100, looper)
     else:
