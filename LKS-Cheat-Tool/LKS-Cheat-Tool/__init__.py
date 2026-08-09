@@ -614,6 +614,51 @@ def construct_debug_menu():
     Entry(teleport_frame, textvariable=xgrid, width=2).grid(column=1, row=1)
     tp = partial(teleport, [get_save_pos(0x903F6B34), get_save_pos(0x903F6B38), get_save_pos(0x903F6B3C)], ["grid"], [xgrid, "same", zgrid])
     ttk.Button(teleport_frame, text="Send!", command=tp).grid(column=1, row=2)
+    
+    construction_frame = ttk.Labelframe(debug_top_menu_tab, text="Building Status")
+    construction_frame.grid(column=3, row=0)
+    
+    cons_selector = IntVar()
+    cons_mode = StringVar()
+    ttk.Spinbox(construction_frame, from_=0, to=206, textvariable=cons_selector, width=3).grid(column=0, row=0)
+    ttk.Radiobutton(construction_frame, text="Inactive", variable=cons_mode, value="inactive").grid(column=1, row=0)
+    ttk.Radiobutton(construction_frame, text="Sign", variable=cons_mode, value="sign").grid(column=2, row=0)
+    ttk.Radiobutton(construction_frame, text="Built", variable=cons_mode, value="built").grid(column=3, row=0)
+    cons_selector.trace_add("write", partial(get_building, cons_selector, cons_mode))
+    ttk.Button(construction_frame, text="Send!", command=partial(set_building, cons_selector, cons_mode)).grid(column=1, row=1, columnspan=3)
+
+def get_building(*args):
+    
+    index = args[0].get()
+    mode = args[1]
+    
+    array_start = get_save_pos(0x903e8960)
+    position = array_start + (index * 0x10c)
+    
+    curr_mode = dolphin_memory_engine.read_byte(position)
+    
+    if curr_mode == 0:
+        mode.set("inactive")
+    if curr_mode == 1:
+        mode.set("sign")
+    if curr_mode == 2:
+        mode.set("built")
+    
+def set_building(i, mode):
+    
+    index = i.get()
+    
+    if mode.get() == "inactive":
+        to_write = 0
+    if mode.get() == "sign":
+        to_write = 1
+    if mode.get() == "built":
+        to_write = 2
+    
+    array_start = get_save_pos(0x903e8960)
+    position = array_start + (index * 0x10c)
+    
+    dolphin_memory_engine.write_byte(position, to_write)
 
 def teleport(var_array, coord_array, grid_array = []):
 
