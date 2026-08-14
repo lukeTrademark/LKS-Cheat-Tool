@@ -462,7 +462,7 @@ def construct_inventory_menu():
         Label(curr_frame, text=name.replace("\\n", "\n")).grid(column=i%10, row=1+(2*(i//10)))
         create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, key_item_images[0]).grid(column=i%10, row=2+(2*(i//10)))
 
-    books = [[3, "/Tables/Wonder_Spots", (0x9041e71a * 8) + 1, "Wonder_Spots", 10], [4, "/Tables/UMA_Logs", 0, "UMA_Pages", 12], [5, "/Tables/Gourmet_Entries", 0, "Gourmet_Pages", 10], [6, "/Tables/Animals", (0x9041e76a * 8) + 1, "Animal_Entries", 7], [7, "/Tables/Hums", (0x9041e73a * 8) + 1, "Hum_Pages", 10], [8, "/Tables/Kingstones", (0x9041e75a * 8) + 1, "Kingstones", 7], [10, "/Tables/Cutscenes", (0x9041e72a * 8) + 1, "Cutscene_Thumbnails", 9]]
+    books = [[3, "/Tables/Wonder_Spots", (0x9041e71a * 8) + 1, "Wonder_Spots", 10], [4, "/Tables/UMA_Logs", (0x9041bf50 * 8), "UMA_Pages", 12], [5, "/Tables/Gourmet_Entries", 0, "Gourmet_Pages", 10], [6, "/Tables/Animals", (0x9041e76a * 8) + 1, "Animal_Entries", 7], [7, "/Tables/Hums", (0x9041e73a * 8) + 1, "Hum_Pages", 10], [8, "/Tables/Kingstones", (0x9041e75a * 8) + 1, "Kingstones", 7], [10, "/Tables/Cutscenes", (0x9041e72a * 8) + 1, "Cutscene_Thumbnails", 9]]
     for book in books:
         curr_frame = key_item_frames[book[0]]
         entries = keygen(path.abspath(path.dirname(__file__)+book[1]))
