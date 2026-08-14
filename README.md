@@ -4,7 +4,7 @@ LKS Cheat Tool is a program that hooks onto the Wii game Little King's Story and
 
 ## Features
 
-**General**: Edit your quantity of Bol, activate/deactivate a variety of key items and book entries, place arbitrary items inside your inventory, etc. You can even utilize the unused 51st-100th inventory slots! (LKS doesn't play nice when slots aren't filled sequentially, though...)  
+**General**: Edit your quantity of Bol, activate/deactivate a variety of key items and book entries, place arbitrary items inside your inventory, etc. You can even increase your inventory's capacity and use those new slots! (LKS only prepared for up to 100, though, and it also doesn't play nice when slots aren't filled sequentially...)  
 **Game State**: Presently, a whole lot of nothing. Please be patient. Please. Please. Pl  
 **Citizens**: Access the data about your citizens by internal ID or active presense in the Royal Guard and modify their position, name, job, etc.  
 **Kingdom Plan**: Enable/Disable any kingdom plan at will, regardless of if it's even presently available to you.  
@@ -15,8 +15,8 @@ LKS Cheat Tool is a program that hooks onto the Wii game Little King's Story and
 Q: Why does the inventory/hat/held item/equipment dropdown have all this other junk in it?  
 A: So...the LKS devs were complete freaks, and made a ton of disparate objects use the exact same "Item" system, such as...well, spoils, hats, held items, and equipment on citizens. The visuals work with each other quite well too, so feel free to get silly with it! (the spoils and equipment are a ways down the list btw, type the name of one to jump the list to it)  
 
-Q: Why is this check box greyed out?  
-A: Those are check boxes for things certainly important enough to add functionality for, but whose flags are currently unknown. In short, they don't work.  
+Q: Why is this check box/entry box greyed out?  
+A: The check boxes are for things certainly important enough to add functionality for, but whose flags are currently unknown. Similar deal for entry boxes, except those are for values that don't play nice with being edited.  
 
 Q: I'm trying to change a citizen's position, but the numbers keep fighting me!  
 A: That's because the position data is updating live! Pause the game in Dolphin if you need an easier time moving people with your mind.  
