@@ -414,7 +414,7 @@ def construct_inventory_menu():
     bools = []
     
     curr_frame = key_item_frames[0]
-    entries = [[489, "Onii King"], [490, "Duvroc"], [491, "Shishkebaboo"], [492, "Omelet"], [493, "TV Dinnah"], [494, "Long Sauvage"], [495, "Jumbo Champloon"], [-1, "Onii King"], [-1, "Duvroc"], [-1, "Shishkebaboo"], [-1, "Omelet"], [-1, "TV Dinnah"], [-1, "Long Sauvage"], [-1, "Jumbo Champloon"]]
+    entries = [[489, "Onii King"], [490, "Duvroc"], [491, "Shishkebaboo"], [492, "Omelet"], [493, "TV Dinnah"], [494, "Long Sauvage"], [495, "Jumbo Champloon"], [32030, "Onii King"], [32031, "Duvroc"], [32032, "Shishkebaboo"], [32033, "Omelet"], [32034, "TV Dinnah"], [32035, "Long Sauvage"], [32036, "Jumbo Champloon"]]
     index = 0
     for slot in entries:
         bools.insert(0, BooleanVar())
