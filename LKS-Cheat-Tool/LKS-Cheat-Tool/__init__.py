@@ -459,13 +459,13 @@ def construct_inventory_menu():
             create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, image).grid(column=0, row=1, rowspan=3)
         if i == 7:
             Label(curr_frame, text=name).grid(column=3, row=2, columnspan=2)
-            create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, image).grid(column=3, row=3, columnspan=2)
+            create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, image).grid(column=3, row=3, columnspan=2, sticky='n')
         if (i != 0) & (i < 5):
             Label(curr_frame, text=name).grid(column=i, row=0)
-            create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, image).grid(column=i, row=1)
+            create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, image).grid(column=i, row=1, sticky='n')
         if (i > 4) & (i != 7):
             Label(curr_frame, text=name).grid(column=i-4, row=2)
-            create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, image).grid(column=i-4, row=3)
+            create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, image).grid(column=i-4, row=3, sticky='n')
     
     curr_frame = create_scroll_frame(key_item_frames[2], 0, 1, 1168, 425, 2, 1)
     if dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3EXJ":
@@ -507,7 +507,7 @@ def construct_citizens_menu():
     selected_slot = StringVar()
     citizen_selector = ttk.Combobox(citizens_top_menu_tab, textvariable=selected_slot)
     citizen_selector['values'] = tuple(range(index))
-    citizen_selector.grid(column=1, row=0, sticky='ws')
+    citizen_selector.grid(column=1, row=0, sticky='sw')
     citizen_readout = ttk.Labelframe(citizens_top_menu_tab, text="Selected")
     citizen_readout.grid(column=0, row=1, columnspan=2, sticky='n')
     name_key = list_file_read(path.abspath(path.dirname(__file__)+"/Lists/Names"))
