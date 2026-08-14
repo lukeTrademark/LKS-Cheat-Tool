@@ -191,7 +191,7 @@ def create_scroll_frame(upper_frame, column, row, width, height, columnspan=1, r
 
     return frame
 
-def create_live_entry(frame, mode, pos):
+def create_live_entry(frame, mode, pos, state=['normal']):
     
     if mode == "word":
         bol = IntVar()
@@ -201,7 +201,7 @@ def create_live_entry(frame, mode, pos):
         bol = DoubleVar()
         bol.trace_add("write", partial(float_write, bol, pos))
         update_loop("float", pos, bol)
-    return ttk.Entry(frame, textvariable=bol)
+    return ttk.Entry(frame, textvariable=bol, state=state)
 
 def view_inv_slot(*args):
     
@@ -210,7 +210,7 @@ def view_inv_slot(*args):
     id = dolphin_memory_engine.read_bytes(get_save_pos(0x9041E7A4 + (2 * slot)), 2)
     name_key = args[1]
     name = StringVar(value=read_table(name_key, str(int(id.hex(), 16))))
-    Label(frame, text="Inventory Slot "+str(slot+1)+": ").grid(column=0, row=slot)
+    Label(frame, text="Inventory Slot "+str(slot+1)+": ").grid(column=0, row=slot, sticky='w')
     selector = ttk.Combobox(frame, textvariable=name)
     selector.grid(column=1, row=slot)
     selector['values'] = name_key[1]
@@ -369,19 +369,36 @@ def construct_inventory_menu():
     slot = 1
     inv_top_menu_tab = root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
     
-    ttk.Label(inv_top_menu_tab, text="Bol Count").grid(column=0, row=0, sticky='e')
-    create_live_entry(inv_top_menu_tab, "word", 0x9041B350).grid(column=1, row=0, sticky='w')
-    ttk.Label(inv_top_menu_tab, text="Arrow Count").grid(column=0, row=1, sticky='es')
-    create_live_entry(inv_top_menu_tab, "word", 0x92283370).grid(column=1, row=1, sticky='ws')
-    ttk.Label(inv_top_menu_tab, text="Brainy Doctor Doses").grid(column=0, row=2, sticky='e')
-    create_live_entry(inv_top_menu_tab, "word", 0x92283388).grid(column=1, row=2, sticky='w')
-    ttk.Label(inv_top_menu_tab, text="Rainbow Wizard Spell Slots").grid(column=0, row=3, sticky='ne')
-    create_live_entry(inv_top_menu_tab, "word", 0x9228337C).grid(column=1, row=3, sticky='nw')
-    ttk.Label(inv_top_menu_tab, text="Time").grid(column=0, row=4, sticky='e')
-    create_live_entry(inv_top_menu_tab, "float", 0x903E8908).grid(column=1, row=4, sticky='w')
+    ttk.Label(inv_top_menu_tab, text="Bol Count").grid(column=0, row=0, sticky='es')
+    create_live_entry(inv_top_menu_tab, "word", 0x9041B350).grid(column=1, row=0, sticky='sw')
+    ttk.Label(inv_top_menu_tab, text="Inventory Size").grid(column=3, row=0, sticky='es')
+    create_live_entry(inv_top_menu_tab, "word", 0x9041B34A).grid(column=4, row=0, sticky='sw')
+    
+    ttk.Separator(inv_top_menu_tab, orient='horizontal').grid(column=0, row=1, columnspan=5, sticky='esw')
+    
+    ttk.Label(inv_top_menu_tab, text="Arrow Count").grid(column=0, row=2, sticky='es')
+    create_live_entry(inv_top_menu_tab, "word", 0x92283370, ['readonly']).grid(column=1, row=2, sticky='sw')
+    ttk.Label(inv_top_menu_tab, text="Brainy Doctor Doses").grid(column=0, row=3, sticky='e')
+    create_live_entry(inv_top_menu_tab, "word", 0x92283388, ['readonly']).grid(column=1, row=3, sticky='w')
+    ttk.Label(inv_top_menu_tab, text="Rainbow Wizard Spell Slots").grid(column=0, row=4, sticky='ne')
+    create_live_entry(inv_top_menu_tab, "word", 0x9228337C, ['readonly']).grid(column=1, row=4, sticky='nw')
+    
+    ttk.Separator(inv_top_menu_tab, orient='vertical').grid(column=2, row=2, rowspan=3, sticky='ns')
+    
+    ttk.Label(inv_top_menu_tab, text="HP Modifier").grid(column=3, row=2, sticky='es')
+    create_live_entry(inv_top_menu_tab, "word", 0x9041BACC).grid(column=4, row=2, sticky='sw')
+    ttk.Label(inv_top_menu_tab, text="Attack Modifier").grid(column=3, row=3, sticky='e')
+    create_live_entry(inv_top_menu_tab, "word", 0x9041BAD0).grid(column=4, row=3, sticky='w')
+    
+    ttk.Separator(inv_top_menu_tab, orient='horizontal').grid(column=0, row=5, columnspan=5, sticky='new')
+    
+    ttk.Label(inv_top_menu_tab, text="Day Count").grid(column=0, row=6, sticky='ne')
+    create_live_entry(inv_top_menu_tab, "word", 0x903E8904).grid(column=1, row=6, sticky='nw')
+    ttk.Label(inv_top_menu_tab, text="Time").grid(column=3, row=6, sticky='ne')
+    create_live_entry(inv_top_menu_tab, "float", 0x903E8908).grid(column=4, row=6, sticky='nw')
     
     standard_inventory = ttk.Labelframe(inv_top_menu_tab, text="Inventory")
-    standard_inventory.grid(column=2, row=0, rowspan=5)
+    standard_inventory.grid(column=5, row=0, rowspan=7)
     inv_scroll_frame = create_scroll_frame(standard_inventory, 0, 0, 300, 225)
     inventory_contents = keygen(path.abspath(path.dirname(__file__)+"/Tables/Items"))
     for i in list(range(100)):
@@ -394,7 +411,7 @@ def construct_inventory_menu():
         key_item_images.append(PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Key_Items/"+image)))
     
     key_item_notebook = ttk.Notebook(inv_top_menu_tab)
-    key_item_notebook.grid(column=0, row=5, columnspan=3)
+    key_item_notebook.grid(column=0, row=7, columnspan=6)
     key_item_tabs = [["Letters & Memos", "", -1], ["Flying Machine", "", -1], ["Art Pieces", "Art Gallery", 488], ["Wonder Spots", "Book - Wonder Spot", 480], ["UMA Research", "Book - UMA", 481], ["Delicacy Discovery", "Book - Gourmet", 482], ["Animal Rescue", "Book - Animal", 483], ["Hum Discography", "Book - Tunesmith", 484], ["Kingstone Collection", "Book - Jewel", 485], ["Record Smashing", "Book - Records", 486], ["Cutscenes", "Book - Video Archive", -1]]
     key_item_frames = []
     for tab in key_item_tabs:
