@@ -2,7 +2,7 @@
 
 
 a = Analysis(
-    ['__init__.py'],
+    ['__init__.py', 'file_readers.py', 'element_creators.py', 'memory_modifiers.py', 'cfg.py'],
     pathex=[],
     binaries=[],
     datas=[('Images', './Images'), ('Tables', './Tables'), ('Lists', './Lists')],

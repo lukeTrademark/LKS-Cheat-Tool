@@ -1,3 +1,8 @@
+from file_readers import *
+from element_creators import *
+from memory_modifiers import *
+import cfg
+
 import dolphin_memory_engine
 import tkinter
 import time
@@ -12,7 +17,6 @@ from os import listdir
 
 def lks_hook():
     
-    global root
     hooked = False
     
     dolphin_memory_engine.hook()
@@ -23,11 +27,12 @@ def lks_hook():
     
     if not(hooked):
         dolphin_memory_engine.un_hook()
-        root.after(1000, lks_hook)
+        cfg.root.after(1000, lks_hook)
     else:
-        enable_all(root)
+        enable_all(cfg.root)
         
 def enable_all(section):
+    
     for widget in section.winfo_children():
         type = widget.widgetName
         if type == "ttk::notebook":
@@ -52,291 +57,10 @@ def disable_all(section):
         if widget.winfo_children != []:
             disable_all(widget)
 
-def get_save_pos(location):
-    
-    init_save_pos = 0x903E8900
-    if dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3EXJ":
-        save_pos_ptr = 0x8055759C
-    else:
-        save_pos_ptr = 0x80555ABC   
-    curr_save_pos = dolphin_memory_engine.read_word(save_pos_ptr)
-    #curr_save_pos = 0x903E8900
-    
-    return location - init_save_pos + curr_save_pos
-
-def check_flag(flag_index):
-    
-    if dolphin_memory_engine.is_hooked():
-        flag_start = get_save_pos(0x9041A971)
-        flag_position = flag_start + (flag_index // 8)
-        if flag_index > 100000:
-            flag_position = get_save_pos(flag_index // 8)
-        hex_value = dolphin_memory_engine.read_byte(flag_position)
-        return (int(hex_value) & 2**(flag_index%8)) > 0
-    else:
-        return False
-
-def flip_flag(flag_index):
-    
-    if dolphin_memory_engine.is_hooked():
-        flag_start = get_save_pos(0x9041A971)
-        flag_position = flag_start + (flag_index // 8)
-        if flag_index > 100000:
-            flag_position = get_save_pos(flag_index // 8)
-        hex_value = dolphin_memory_engine.read_byte(flag_position)
-        is_active = ((int(hex_value) & 2**(flag_index%8))) > 0
-        if (is_active):
-            new_hex = ((int(hex_value) - 2**(flag_index%8)))
-        else:
-            new_hex = ((int(hex_value) + 2**(flag_index%8)))
-        dolphin_memory_engine.write_byte(flag_position, new_hex)
-
-def set_flag(*args):
-
-    if dolphin_memory_engine.is_hooked():
-        flag_start = get_save_pos(0x9041A971)
-        flag_position = flag_start + (args[0].get() // 8)
-        hex_value = dolphin_memory_engine.read_byte(flag_position)
-        if args[1].get():
-            dolphin_memory_engine.write_byte(flag_position, hex_value | (2**(args[0].get() % 8)))
-        else:
-            dolphin_memory_engine.write_byte(flag_position, hex_value & ~(2**(args[0].get() % 8)))
-
-def flag_readout(*args):
-    
-    flag = args[0]
-    out_name = args[1]
-    out_state = args[2]
-    
-    flag_table = keygen(path.abspath(path.dirname(__file__)+"/Tables/Flags"))
-    name = read_table(flag_table, str(flag.get()))
-    state = check_flag(flag.get())
-    
-    out_name.set(name)
-    out_state.set(state)
-    
-    args[3].configure(text=out_name.get())
-
-def set_cvar(*args):
-    
-    if dolphin_memory_engine.is_hooked():
-        flag_start = get_save_pos(0x9041AC71)
-        flag_position = flag_start + args[0].get()
-        dolphin_memory_engine.write_byte(flag_position, args[1].get())
-
-def cflag_readout(*args):
-    
-    cflag = args[0]
-    out_name = args[1]
-    out_state = args[2]
-    
-    flag_table = keygen(path.abspath(path.dirname(__file__)+"/Tables/Counter_Flags"))
-    name = read_table(flag_table, str(cflag.get()))
-    state = int(dolphin_memory_engine.read_byte(get_save_pos(cflag.get()+0x9041AC71)))
-    
-    out_name.set(name)
-    out_state.set(state)
-    
-    args[3].configure(text=out_name.get())
-
-def id_write(new_result, db, pos, err=0):
-    
-    if not(isinstance(new_result, str)):
-        new = new_result.get()
-    else:
-        new = new_result
-    
-    if len(db) > 2:
-        new_id = db.index(new)
-    else:
-        new_id = db[0][db[1].index(new)]
-    
-    dolphin_memory_engine.write_byte(pos, int(new_id) // 256)
-    dolphin_memory_engine.write_byte(pos+1, int(new_id) % 256)
-
-def float_write(*args):
-    
-    var = args[0]
-    pos = args[1]
-    
-    dolphin_memory_engine.write_float(pos, var.get())
-    
-def word_write(*args):
-
-    dolphin_memory_engine.write_word(get_save_pos(args[1]), args[0].get())
-
-def create_flag_box(flag, var, frame, name="none", image=""):
-    
-    flipper = partial(flip_flag, flag)
-    if image != "":
-        checkbox = ttk.Checkbutton(frame, image=image, command=flipper, variable=var)
-    else:
-        checkbox = ttk.Checkbutton(frame, text=name, command=flipper, variable=var)
-    if flag == -1:
-        checkbox.configure(state=['disabled'])
-    else:
-        update_loop("bit_flag", flag, var)
-    return checkbox
-
-def create_scroll_frame(upper_frame, column, row, width, height, columnspan=1, rowspan=1):
-    
-    canvas = Canvas(upper_frame, width=width, height=height)
-    frame = Frame(canvas)
-    canvas.create_window(0, 0, window=frame, anchor='nw')
-    canvas.grid(column=column, row=row, columnspan=columnspan, rowspan=rowspan)
-    frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
-    scroller = ttk.Scrollbar(upper_frame, orient='vertical', command=canvas.yview)
-    canvas.configure(yscrollcommand=scroller.set)
-    scroller.grid(column=column+columnspan+1, row=row, rowspan=rowspan, sticky='ns')
-
-    return frame
-
-def create_live_entry(frame, mode, pos, state=['normal']):
-    
-    if mode == "word":
-        bol = IntVar()
-        bol.trace_add("write", partial(word_write, bol, pos))
-        update_loop("word", pos, bol)
-    if mode == "float":
-        bol = DoubleVar()
-        bol.trace_add("write", partial(float_write, bol, pos))
-        update_loop("float", pos, bol)
-    return ttk.Entry(frame, textvariable=bol, state=state)
-
-def view_inv_slot(*args):
-    
-    frame = args[2]    
-    slot = args[0]
-    id = dolphin_memory_engine.read_bytes(get_save_pos(0x9041E7A4 + (2 * slot)), 2)
-    name_key = args[1]
-    name = StringVar(value=read_table(name_key, str(int(id.hex(), 16))))
-    Label(frame, text="Inventory Slot "+str(slot+1)+": ").grid(column=0, row=slot, sticky='w')
-    selector = ttk.Combobox(frame, textvariable=name)
-    selector.grid(column=1, row=slot)
-    selector['values'] = name_key[1]
-    selector.bind('<<ComboboxSelected>>', partial(id_write, name, name_key, 0x9041E7A4 + (2 * slot)))
-    update_loop("id", 0x9041E7A4 + (2 * slot), name, name_key)
-    
-def view_citizen(*args):
-    
-    frame = args[0]
-    for info in frame.winfo_children():
-        if frame.winfo_children().index(info) > 1:
-            info.destroy()
-    
-    slot = int(args[1].get())
-    offset = get_save_pos(0x903F6B20 + (452 * slot))
-    
-    name_db = args[2]
-    job_db = args[3]
-    item_db = args[4]
-    
-    index = 0
-    
-    floats = [["X Position", 20, ['normal']], ["Y Position", 24, ['normal']], ["Z Position", 28, ['normal']], ["Rotation", 32, ['readonly']]]
-    vars = []
-    partials = []
-    
-    if args[5] == 'full':
-        for flt in floats:
-            vars.insert(0, DoubleVar(value=dolphin_memory_engine.read_float(get_save_pos(offset+flt[1]))))
-            Label(frame, text=flt[0]).grid(column=0, row=index)
-            Entry(frame, textvariable=vars[0], state=flt[2]).grid(column=1, row=index)
-            partials.insert(0, partial(float_write, vars[0], offset+flt[1]))
-            vars[0].trace_add('write', partials[0])
-            update_loop("float", offset+flt[1], vars[0])
-            index += 1
-    
-    index = 0
-    ids = [["Name", 8, name_db, ['normal']], ["Job", 235, job_db, ['normal']], ["Hat", 38, item_db, ['normal']], ["Held Item", 36, item_db, ['normal']], ["Equipment", 40, item_db, ['normal']]]
-    dropdowns = []
-    
-    for id in ids:
-        slot = dolphin_memory_engine.read_bytes(get_save_pos(offset+id[1]), 2)
-        slot = int(slot.hex(), 16)
-        if len(id[2]) > 2:
-            names = id[2]
-            if slot >= len(names):
-                slot = len(names) - 1
-            vars.insert(0, StringVar(value=names[slot]))
-        else:
-            names = id[2][1]
-            vars.insert(0, StringVar(value=read_table(id[2], str(slot))))
-        Label(frame, text=id[0]).grid(column=2, row=index)
-        dropdowns.insert(0, ttk.Combobox(frame, textvariable=vars[0], state=id[3]))
-        dropdowns[0].grid(column=3, row=index)
-        partials.insert(0, partial(id_write, vars[0], id[2], offset+id[1]))
-        dropdowns[0]['values'] = names
-        dropdowns[0].bind('<<ComboboxSelected>>', partials[0])
-        update_loop("id", offset+id[1], vars[0], id[2])
-        index += 1
-    
-    if args[5] == 'full':
-        tp = partial(teleport, [offset + 20, offset + 24, offset + 28], ["corobo"])
-        ttk.Button(frame, text = "Warp to Me!", command = tp).grid(column=1, row=4)
-
-def find_and_build_citizen(*args):
-    
-    var = args[0]
-    frame = args[1]
-    name_db = args[2]
-    job_db = args[3]
-    item_db = args[4]
-    
-    for info in frame.winfo_children():
-        info.destroy()
-
-    if var.get() != 0:
-        index = 0
-        chartype = 0
-        while (chartype != var.get()) & (index < 500):
-            chartype = dolphin_memory_engine.read_word(get_save_pos(0x903F6B20 + (452 * index)))
-            index += 1
-        index -= 1
-        if index < 499:
-            view_citizen(frame, IntVar(value=index), name_db, job_db, item_db, 'partial')
-        else:
-            Label(frame, text = "oh nooooooo").grid(column=0, row=0)
-
-def list_file_read(filename):
-    
-    output = []
-    file = fileinput.input(files=filename)
-    for line in file:
-        output.append(line.rstrip())
-        
-    return output
-
-def keygen(filename):
-    
-    keys = []
-    outputs = []
-    file = fileinput.input(files=filename+".tsv", encoding='utf-8')
-    for line in file:
-        divorce = line.split('\t')
-        divorce.append("")
-        keys.append(divorce[0].rstrip())
-        outputs.append(divorce[1].rstrip())
-        
-    return [keys, outputs]
-
-def read_table(table, key):
-    
-    key_set = table[0]
-    output_set = table[1]
-    
-    if (key_set.count(key)) > 0:
-        result = output_set[key_set.index(key)]
-    else:
-        result = "Not Found"
-    
-    return result
-    
 def wait_for_hook():
     
-    global root
-    if len(root.winfo_children()) == 1:
-        loading_frame = ttk.Frame(root)
+    if len(cfg.root.winfo_children()) == 1:
+        loading_frame = ttk.Frame(cfg.root)
         loading_frame.grid(column=0, row=0)
         Label(loading_frame, text="Waiting for LKS...").grid(column=0, row=0)
         bar = ttk.Progressbar(loading_frame, mode='indeterminate', length=200)
@@ -344,18 +68,17 @@ def wait_for_hook():
         bar.start(15)
         
     if dolphin_memory_engine.is_hooked():
-        root.winfo_children()[1].destroy()
+        cfg.root.winfo_children()[1].destroy()
         construct_inventory_menu()
         construct_citizens_menu()
         construct_kingdom_plan_menu()
         construct_debug_menu()
     else:
-        root.after(1000, wait_for_hook)
+        cfg.root.after(1000, wait_for_hook)
 
 def construct_top_menu():
     
-    global root
-    frame = root.winfo_children()[0]
+    frame = cfg.root.winfo_children()[0]
     
     top_menu = ttk.Notebook(frame)
     top_menu.grid(column=0, row=2)
@@ -365,9 +88,8 @@ def construct_top_menu():
         
 def construct_inventory_menu():
     
-    global root
     slot = 1
-    inv_top_menu_tab = root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
+    inv_top_menu_tab = cfg.root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
     
     ttk.Label(inv_top_menu_tab, text="Bol Count").grid(column=0, row=0, sticky='es')
     create_live_entry(inv_top_menu_tab, "word", 0x9041B350).grid(column=1, row=0, sticky='sw')
@@ -494,9 +216,8 @@ def construct_inventory_menu():
     
 def construct_citizens_menu():
     
-    global root
     slot = 3
-    citizens_top_menu_tab = root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
+    citizens_top_menu_tab = cfg.root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
     
     index = 24
     while (dolphin_memory_engine.read_word(get_save_pos(0x903F6B20 + (452 * index))) != 0):
@@ -538,9 +259,8 @@ def construct_citizens_menu():
 
 def construct_kingdom_plan_menu():
     
-    global root
     slot = 4
-    kp_top_menu_tab = root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
+    kp_top_menu_tab = cfg.root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
    
     kingdom_plan_menu = ttk.Notebook(kp_top_menu_tab)
     global tab_images
@@ -581,9 +301,8 @@ def construct_kingdom_plan_menu():
     
 def construct_debug_menu():
     
-    global root
     slot = 5
-    debug_top_menu_tab = root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
+    debug_top_menu_tab = cfg.root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
     
     bit_frame = ttk.Labelframe(debug_top_menu_tab, text="Bit Flags")
     counter_frame = ttk.Labelframe(debug_top_menu_tab, text="Counter Flags")
@@ -644,39 +363,6 @@ def construct_debug_menu():
     cons_selector.trace_add("write", partial(get_building, cons_selector, cons_mode))
     ttk.Button(construction_frame, text="Send!", command=partial(set_building, cons_selector, cons_mode)).grid(column=1, row=1, columnspan=3)
 
-def get_building(*args):
-    
-    index = args[0].get()
-    mode = args[1]
-    
-    array_start = get_save_pos(0x903e8960)
-    position = array_start + (index * 0x10c)
-    
-    curr_mode = dolphin_memory_engine.read_byte(position)
-    
-    if curr_mode == 0:
-        mode.set("inactive")
-    if curr_mode == 1:
-        mode.set("sign")
-    if curr_mode == 2:
-        mode.set("built")
-    
-def set_building(i, mode):
-    
-    index = i.get()
-    
-    if mode.get() == "inactive":
-        to_write = 0
-    if mode.get() == "sign":
-        to_write = 1
-    if mode.get() == "built":
-        to_write = 2
-    
-    array_start = get_save_pos(0x903e8960)
-    position = array_start + (index * 0x10c)
-    
-    dolphin_memory_engine.write_byte(position, to_write)
-
 def teleport(var_array, coord_array, grid_array = []):
 
     if coord_array[0] != "corobo":
@@ -691,53 +377,16 @@ def teleport(var_array, coord_array, grid_array = []):
         dolphin_memory_engine.write_bytes(var_array[0], dolphin_memory_engine.read_bytes(get_save_pos(0x903f6b34), 12))
         dolphin_memory_engine.write_bytes(var_array[0]+28, dolphin_memory_engine.read_bytes(get_save_pos(0x903f6b50), 16))
 
-def update_loop(type, pos, var, db=[]):
-
-    global root
-
-    if type == "bit_flag":
-        var.set(check_flag(pos))
-        
-    if type == "byte":
-        var.set(dolphin_memory_engine.read_byte(get_save_pos(pos)))
-        
-    if type == "word":
-        new = dolphin_memory_engine.read_word(get_save_pos(pos))
-        if var.get() != new:
-            var.set(new)
-            
-    if type == "float":
-        var.set(dolphin_memory_engine.read_float(get_save_pos(pos)))
-
-    if type == "id":
-        value = int(dolphin_memory_engine.read_bytes(get_save_pos(pos), 2).hex(), 16)
-        if isinstance(db[0], str):
-            if value >= len(db):
-                value = len(db) - 1
-            var.set(db[value])
-        else:
-            var.set(read_table(db, str(value)))
-
-    looper = partial(update_loop, type, pos, var, db)
-
-    if type == "float":
-        root.after(100, looper)
-    else:
-        root.after(1000, looper)
-
-
-global root
-root = Tk()
-root.title("LKS Cheat Tool")
-frm = ttk.Frame(root, padding=10)
+cfg.root.title("LKS Cheat Tool")
+frm = ttk.Frame(cfg.root, padding=10)
 frm.grid()
 
 construct_top_menu()
 
-disable_all(root)
+disable_all(cfg.root)
 wait_for_hook()
 lks_hook()
 
-root.mainloop()
+cfg.root.mainloop()
 
 dolphin_memory_engine.un_hook()
