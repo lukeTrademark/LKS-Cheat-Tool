@@ -115,7 +115,7 @@ def view_citizen(*args):
     
     if args[5] == 'full':
         tp = partial(teleport, [offset + 20, offset + 24, offset + 28], ["corobo"])
-        ttk.Button(frame, text = "Warp to Me!", command = tp).grid(column=1, row=4)
+        ttk.Button(frame, text = "Warp to Me!", command = tp).grid(column=1, row=4, sticky='ew')
 
 def find_and_build_citizen(*args):
     
@@ -139,7 +139,23 @@ def find_and_build_citizen(*args):
             view_citizen(frame, IntVar(value=index), name_db, job_db, item_db, 'partial')
         else:
             Label(frame, text = "oh nooooooo").grid(column=0, row=0)
-            
+
+
+def teleport(var_array, coord_array, grid_array = []):
+
+    if coord_array[0] != "corobo":
+        for i in list(range(3)):
+            if coord_array[0] != "grid":
+                if coord_array[i] != "same":
+                    dolphin_memory_engine.write_float(var_array[i], coord_array[i])
+            else:
+                if grid_array[i] != "same":
+                    dolphin_memory_engine.write_float(var_array[i], (grid_array[i].get()*64)+32)
+    else:
+        dolphin_memory_engine.write_bytes(var_array[0], dolphin_memory_engine.read_bytes(get_save_pos(0x903f6b34), 12))
+        dolphin_memory_engine.write_bytes(var_array[0]+28, dolphin_memory_engine.read_bytes(get_save_pos(0x903f6b50), 16))
+
+
 def update_loop(type, pos, var, db=[]):
 
     if type == "bit_flag":

@@ -1,4 +1,8 @@
 import dolphin_memory_engine
+import tkinter
+from tkinter import *
+
+import cfg
 
 def get_save_pos(location):
     
@@ -8,7 +12,8 @@ def get_save_pos(location):
     else:
         save_pos_ptr = 0x80555ABC   
     curr_save_pos = dolphin_memory_engine.read_word(save_pos_ptr)
-    #curr_save_pos = 0x903E8900
+    if curr_save_pos == 0:
+        curr_save_pos = 0x903E8900
     
     return location - init_save_pos + curr_save_pos
 
@@ -145,3 +150,25 @@ def set_building(i, mode):
     position = array_start + (index * 0x10c)
     
     dolphin_memory_engine.write_byte(position, to_write)
+
+def get_chapter():
+    
+    chapter_flag = 300
+    
+    for i in list(range(6)):
+        if check_flag(chapter_flag + i):
+            cfg.curr_chapter.set(i+1)
+    
+    cfg.root.after(1000, get_chapter)
+            
+def set_chapter(*args):
+    
+    new_chap = args[0]
+    chapter_progress_flags = [[300], [301], [302], [303], [304], [305]]
+    
+    for set in chapter_progress_flags:
+        for flag in set:
+            set_flag(IntVar(value=flag), BooleanVar(value=False))
+    
+    for real in chapter_progress_flags[new_chap.get()-1]:
+        set_flag(IntVar(value=real), BooleanVar(value=True))

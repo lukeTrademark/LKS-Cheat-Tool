@@ -70,6 +70,7 @@ def wait_for_hook():
     if dolphin_memory_engine.is_hooked():
         cfg.root.winfo_children()[1].destroy()
         construct_inventory_menu()
+        construct_gamestate_menu()
         construct_citizens_menu()
         construct_kingdom_plan_menu()
         construct_debug_menu()
@@ -213,7 +214,21 @@ def construct_inventory_menu():
             key_item_images.insert(0, PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/"+book[3]+"/"+name.replace("?", "QMARK")+".png")))
             Label(curr_frame, text=name).grid(column=i%width, row=1+(2*(i//width)))
             create_flag_box(offset + int(entries[0][i]), bools[0], curr_frame, name, key_item_images[0]).grid(column=i%width, row=2+(2*(i//width)))
+
+def construct_gamestate_menu():
     
+    slot = 2
+    gs_top_menu_tab = cfg.root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
+    
+    chapter_window = ttk.Labelframe(gs_top_menu_tab, text="Chapter Select")
+    chapter_window.grid(column=0, row=0, columnspan=4, rowspan=2)
+    
+    name_list=["Chapter 1: Prologue (Unused)", "Chapter 2: Tutorial", "Chapter 3: Onii King", "Chapter 4: Sunflower Plains", "Chapter 5: Skull Plains", "Chapter 6: World of God"]
+    for i in list(range(6)):
+        ttk.Radiobutton(chapter_window, text=name_list[i], variable=cfg.curr_chapter, value=i+1).grid(column=0, row=i, sticky='w')
+    get_chapter()
+    cfg.curr_chapter.trace_add('write', partial(set_chapter, cfg.curr_chapter))
+
 def construct_citizens_menu():
     
     slot = 3
@@ -363,21 +378,8 @@ def construct_debug_menu():
     cons_selector.trace_add("write", partial(get_building, cons_selector, cons_mode))
     ttk.Button(construction_frame, text="Send!", command=partial(set_building, cons_selector, cons_mode)).grid(column=1, row=1, columnspan=3)
 
-def teleport(var_array, coord_array, grid_array = []):
-
-    if coord_array[0] != "corobo":
-        for i in list(range(3)):
-            if coord_array[0] != "grid":
-                if coord_array[i] != "same":
-                    dolphin_memory_engine.write_float(var_array[i], coord_array[i])
-            else:
-                if grid_array[i] != "same":
-                    dolphin_memory_engine.write_float(var_array[i], (grid_array[i].get()*64)+32)
-    else:
-        dolphin_memory_engine.write_bytes(var_array[0], dolphin_memory_engine.read_bytes(get_save_pos(0x903f6b34), 12))
-        dolphin_memory_engine.write_bytes(var_array[0]+28, dolphin_memory_engine.read_bytes(get_save_pos(0x903f6b50), 16))
-
-cfg.root.title("LKS Cheat Tool")
+ver_num = "0.7.0_dev"
+cfg.root.title("LKS Cheat Tool v" + ver_num)
 frm = ttk.Frame(cfg.root, padding=10)
 frm.grid()
 
