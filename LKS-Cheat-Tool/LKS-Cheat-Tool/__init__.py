@@ -221,13 +221,26 @@ def construct_gamestate_menu():
     gs_top_menu_tab = cfg.root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
     
     chapter_window = ttk.Labelframe(gs_top_menu_tab, text="Chapter Select")
-    chapter_window.grid(column=0, row=0, columnspan=4, rowspan=2)
-    
-    name_list=["Chapter 1: Prologue (Unused)", "Chapter 2: Tutorial", "Chapter 3: Onii King", "Chapter 4: Sunflower Plains", "Chapter 5: Skull Plains", "Chapter 6: World of God"]
+    chapter_window.grid(column=0, row=0, columnspan=2, rowspan=4)
+    name_list = ["Chapter 1: Prologue (Unused)", "Chapter 2: Tutorial", "Chapter 3: Onii King", "Chapter 4: Sunflower Plains", "Chapter 5: Skull Plains", "Chapter 6: World of God"]
     for i in list(range(6)):
         ttk.Radiobutton(chapter_window, text=name_list[i], variable=cfg.curr_chapter, value=i+1).grid(column=0, row=i, sticky='w')
     get_chapter()
     cfg.curr_chapter.trace_add('write', partial(set_chapter, cfg.curr_chapter))
+    
+    king_window = ttk.Labelframe(gs_top_menu_tab, text="Kings Defeated")
+    king_window.grid(column=2, row=0, columnspan=1, rowspan=4)
+    king_list = ["Onii King", "King Duvroc", "King Shishkebaboo", "King Omelet", "King TV Dinnah", "King Long Sauvage", "King Jumbo Champloon"]
+    king_kill_flags = [[2048], [2304, 2313], [2305, 2314], [2561, 2565, 2566], [2562], [2564], [2563]]
+    for i in list(range(7)):
+        create_flag_box(king_kill_flags[i], BooleanVar(), king_window, king_list[i]).grid(column=0, row=i)
+
+    guardian_window = ttk.Labelframe(gs_top_menu_tab, text="Guardians Defeated")
+    guardian_window.grid(column=3, row=0, columnspan=1, rowspan=4)
+    guardian_list = ["Cow Bones", "Onii Man", "Yvonne", "Mush Bro", "Mush Geezer", "Clockwork Knight", "Owl Hag", "Ogre Ergo", "Radeeze", "Blue Dragon"]
+    guardian_kill_flags = [[840, 1819], [841, -1], [842, 1214, 1224], [844, 1229], [845, 1230], [843, 1225], [846, 1226], [847, 1227], [848, 1228], [849, 1231, 1232]]
+    for i in list(range(10)):
+        create_flag_box(guardian_kill_flags[i], BooleanVar(), guardian_window, guardian_list[i]).grid(column=0, row=i)
 
 def construct_citizens_menu():
     

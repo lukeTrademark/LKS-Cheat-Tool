@@ -47,13 +47,22 @@ def flip_flag(flag_index):
 def set_flag(*args):
 
     if dolphin_memory_engine.is_hooked():
-        flag_start = get_save_pos(0x9041A971)
-        flag_position = flag_start + (args[0].get() // 8)
-        hex_value = dolphin_memory_engine.read_byte(flag_position)
-        if args[1].get():
-            dolphin_memory_engine.write_byte(flag_position, hex_value | (2**(args[0].get() % 8)))
+        if not(isinstance(args[0], IntVar)) and not(isinstance(args[0], int)):
+            new_args = args
+            for i in args[0]:
+                set_flag(i, args[1])
         else:
-            dolphin_memory_engine.write_byte(flag_position, hex_value & ~(2**(args[0].get() % 8)))
+            if isinstance(args[0], IntVar):
+                flag = args[0].get()
+            else:
+                flag = args[0]
+            flag_start = get_save_pos(0x9041A971)
+            flag_position = flag_start + (flag // 8)
+            hex_value = dolphin_memory_engine.read_byte(flag_position)
+            if args[1].get():
+                dolphin_memory_engine.write_byte(flag_position, hex_value | (2**(flag % 8)))
+            else:
+                dolphin_memory_engine.write_byte(flag_position, hex_value & ~(2**(flag % 8)))
 
 def flag_readout(*args):
     

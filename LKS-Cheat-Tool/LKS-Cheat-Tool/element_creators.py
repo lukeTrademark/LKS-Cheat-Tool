@@ -9,7 +9,11 @@ from functools import partial
 
 def create_flag_box(flag, var, frame, name="none", image=""):
     
-    flipper = partial(flip_flag, flag)
+    if isinstance(flag, int):
+        flipper = partial(flip_flag, flag)
+    else:
+        flipper = partial(set_flag, flag, var)
+        flag = flag[0]
     if image != "":
         checkbox = ttk.Checkbutton(frame, image=image, command=flipper, variable=var)
     else:
