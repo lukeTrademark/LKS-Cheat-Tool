@@ -12,7 +12,7 @@ def get_save_pos(location):
     else:
         save_pos_ptr = 0x80555ABC   
     curr_save_pos = dolphin_memory_engine.read_word(save_pos_ptr)
-    if curr_save_pos == 0:
+    if curr_save_pos == 0 or location < 0x90000000:
         curr_save_pos = 0x903E8900
     
     return location - init_save_pos + curr_save_pos

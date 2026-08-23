@@ -334,8 +334,8 @@ def construct_debug_menu():
     
     bit_frame = ttk.Labelframe(debug_top_menu_tab, text="Bit Flags")
     counter_frame = ttk.Labelframe(debug_top_menu_tab, text="Counter Flags")
-    bit_frame.grid(column=0, row=0)
-    counter_frame.grid(column=1, row=0)
+    bit_frame.grid(column=0, row=0, rowspan=2)
+    counter_frame.grid(column=1, row=0, rowspan=2)
     
     Label(bit_frame, text="Flag").grid(column=0, row=0)
     Label(bit_frame, text="Enabled?").grid(column=1, row=0)
@@ -368,7 +368,7 @@ def construct_debug_menu():
     ttk.Button(counter_frame, text="Send!", command=csetter).grid(column=1, row=2)
 
     teleport_frame = ttk.Labelframe(debug_top_menu_tab, text="Teleport")
-    teleport_frame.grid(column=2, row=0)
+    teleport_frame.grid(column=2, row=0, rowspan=2)
     
     xgrid = IntVar(value=0)
     zgrid = IntVar(value=0)
@@ -380,7 +380,7 @@ def construct_debug_menu():
     ttk.Button(teleport_frame, text="Send!", command=tp).grid(column=1, row=2)
     
     construction_frame = ttk.Labelframe(debug_top_menu_tab, text="Building Status")
-    construction_frame.grid(column=3, row=0)
+    construction_frame.grid(column=3, row=0, rowspan=2, sticky='ns')
     
     cons_selector = IntVar()
     cons_mode = StringVar()
@@ -390,6 +390,11 @@ def construct_debug_menu():
     ttk.Radiobutton(construction_frame, text="Built", variable=cons_mode, value="built").grid(column=3, row=0)
     cons_selector.trace_add("write", partial(get_building, cons_selector, cons_mode))
     ttk.Button(construction_frame, text="Send!", command=partial(set_building, cons_selector, cons_mode)).grid(column=1, row=1, columnspan=3)
+    
+    Label(debug_top_menu_tab, text="Speed").grid(column=4, row=0, sticky='s')
+    speed = DoubleVar(value=dolphin_memory_engine.read_float(0x80555DF0))
+    speed.trace_add("write", partial(float_write, speed, 0x80555DF0))
+    ttk.Entry(debug_top_menu_tab, textvariable=speed).grid(column=4, row=1, sticky='n')
 
 ver_num = "0.7.0_dev"
 cfg.root.title("LKS Cheat Tool v" + ver_num)
