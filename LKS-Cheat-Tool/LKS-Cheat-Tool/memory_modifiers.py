@@ -1,16 +1,17 @@
+from file_readers import *
+import cfg
+
 import dolphin_memory_engine
 import tkinter
 from tkinter import *
 
-import cfg
-
 def get_save_pos(location):
     
     init_save_pos = 0x903E8900
-    if dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3EXJ":
+    if cfg.lks_region == "NTSC-U":
         save_pos_ptr = 0x8055759C
-    else:
-        save_pos_ptr = 0x80555ABC   
+    elif cfg.lks_region == "PAL":
+        save_pos_ptr = 0x80555ABC
     curr_save_pos = dolphin_memory_engine.read_word(save_pos_ptr)
     if curr_save_pos == 0 or location < 0x90000000:
         curr_save_pos = 0x903E8900
@@ -181,3 +182,28 @@ def set_chapter(*args):
     
     for real in chapter_progress_flags[new_chap.get()-1]:
         set_flag(IntVar(value=real), BooleanVar(value=True))
+
+def get_castle_level():
+    
+    castle_level_flag = 186
+    
+    for i in list(range(3)):
+        if check_flag(castle_level_flag + i):
+            cfg.castle_level.set(i)
+    
+    cfg.root.after(1000, get_castle_level)
+            
+def set_castle_level(*args):
+    
+    new_level = args[0]
+    castle_level_flags = [[186], [187], [188]]
+    
+    for set in castle_level_flags:
+        for flag in set:
+            set_flag(IntVar(value=flag), BooleanVar(value=False))
+    
+    for real in castle_level_flags[new_level.get()]:
+        set_flag(IntVar(value=real), BooleanVar(value=True))
+    
+    set_cvar(IntVar(value=4), IntVar(value=new_level.get()))
+    

@@ -69,6 +69,12 @@ def wait_for_hook():
         
     if dolphin_memory_engine.is_hooked():
         cfg.root.winfo_children()[1].destroy()
+        if dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3EXJ":
+            cfg.lks_region = "NTSC-U"
+        elif dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3P99":
+            cfg.lks_region = "PAl"
+        else:
+            cfg.lks_region = "Not Found"
         construct_inventory_menu()
         construct_gamestate_menu()
         construct_citizens_menu()
@@ -191,9 +197,9 @@ def construct_inventory_menu():
             create_flag_box(int(entries[0][i]), bools[0], curr_frame, name, image).grid(column=i-4, row=3, sticky='n')
     
     curr_frame = create_scroll_frame(key_item_frames[2], 0, 1, 1168, 425, 2, 1)
-    if dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3EXJ":
+    if cfg.lks_region == "NTSC-U":
         entries = keygen(path.abspath(path.dirname(__file__)+"/Tables/Art_US"))
-    else:
+    elif cfg.lks_region == "PAL" or cfg.lks_region == "NTSC-J":
         entries = keygen(path.abspath(path.dirname(__file__)+"/Tables/Art_EU"))
     for i in list(range(len(entries[0]))):
         bools.insert(0, BooleanVar())
@@ -221,26 +227,42 @@ def construct_gamestate_menu():
     gs_top_menu_tab = cfg.root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
     
     chapter_window = ttk.Labelframe(gs_top_menu_tab, text="Chapter Select")
-    chapter_window.grid(column=0, row=0, columnspan=2, rowspan=4)
+    chapter_window.grid(column=0, row=0, columnspan=2, rowspan=3, sticky='ns')
     name_list = ["Chapter 1: Prologue (Unused)", "Chapter 2: Tutorial", "Chapter 3: Onii King", "Chapter 4: Sunflower Plains", "Chapter 5: Skull Plains", "Chapter 6: World of God"]
     for i in list(range(6)):
         ttk.Radiobutton(chapter_window, text=name_list[i], variable=cfg.curr_chapter, value=i+1).grid(column=0, row=i, sticky='w')
     get_chapter()
     cfg.curr_chapter.trace_add('write', partial(set_chapter, cfg.curr_chapter))
     
+    castle_window = ttk.Labelframe(gs_top_menu_tab, text="Castle Tier")
+    castle_window.grid(column=0, row=3, columnspan=1, rowspan=2, sticky='n')
+    ttk.Label(castle_window, text="Tier only applies properly\non save and reload!").grid(column=0, row=0)
+    name_list = ["Shabby", "Nice", "Glamorous"]
+    for i in list(range(3)):
+        ttk.Radiobutton(castle_window, text=name_list[i], variable=cfg.castle_level, value=i).grid(column=0, row=i+1, sticky='w')
+    get_castle_level()
+    cfg.curr_chapter.trace_add('write', partial(set_castle_level, cfg.castle_level))
+    
     king_window = ttk.Labelframe(gs_top_menu_tab, text="Kings Defeated")
-    king_window.grid(column=2, row=0, columnspan=1, rowspan=4)
+    king_window.grid(column=2, row=0, columnspan=1, rowspan=3, sticky='n')
     king_list = ["Onii King", "King Duvroc", "King Shishkebaboo", "King Omelet", "King TV Dinnah", "King Long Sauvage", "King Jumbo Champloon"]
     king_kill_flags = [[2048], [2304, 2313], [2305, 2314], [2561, 2565, 2566], [2562], [2564], [2563]]
     for i in list(range(7)):
-        create_flag_box(king_kill_flags[i], BooleanVar(), king_window, king_list[i]).grid(column=0, row=i)
+        create_flag_box(king_kill_flags[i], BooleanVar(), king_window, king_list[i]).grid(column=0, row=i, sticky='w')
+
+    princess_window = ttk.Labelframe(gs_top_menu_tab, text="Princesses Acquired")
+    princess_window.grid(column=2, row=3, columnspan=1, rowspan=3, sticky='n')
+    princess_list = ["Princess Apricot", "Princess Bouquet", "Princess Spumoni", "Princess Shizuka", "Princess Kokomo Pine", "Princess Ferne", "Princess Martel"]
+    princess_acquisition_flags = [[350], [307], [308], [309], [310], [311], [312]]
+    for i in list(range(7)):
+        create_flag_box(princess_acquisition_flags[i], BooleanVar(), princess_window, princess_list[i]).grid(column=0, row=i, sticky='w')
 
     guardian_window = ttk.Labelframe(gs_top_menu_tab, text="Guardians Defeated")
-    guardian_window.grid(column=3, row=0, columnspan=1, rowspan=4)
+    guardian_window.grid(column=3, row=0, columnspan=1, rowspan=4, sticky='n')
     guardian_list = ["Cow Bones", "Onii Man", "Yvonne", "Mush Bro", "Mush Geezer", "Clockwork Knight", "Owl Hag", "Ogre Ergo", "Radeeze", "Blue Dragon"]
-    guardian_kill_flags = [[840, 1819], [841, -1], [842, 1214, 1224], [844, 1229], [845, 1230], [843, 1225], [846, 1226], [847, 1227], [848, 1228], [849, 1231, 1232]]
+    guardian_kill_flags = [[840, 1819, 1829], [841, 1792], [842, 1214, 1224], [844, 1229], [845, 1230], [843, 1225], [846, 1226], [847, 1227], [848, 1228], [849, 1231, 1232]]
     for i in list(range(10)):
-        create_flag_box(guardian_kill_flags[i], BooleanVar(), guardian_window, guardian_list[i]).grid(column=0, row=i)
+        create_flag_box(guardian_kill_flags[i], BooleanVar(), guardian_window, guardian_list[i]).grid(column=0, row=i, sticky='w')
 
 def construct_citizens_menu():
     
@@ -392,11 +414,15 @@ def construct_debug_menu():
     ttk.Button(construction_frame, text="Send!", command=partial(set_building, cons_selector, cons_mode)).grid(column=1, row=1, columnspan=3)
     
     Label(debug_top_menu_tab, text="Speed").grid(column=4, row=0, sticky='s')
-    speed = DoubleVar(value=dolphin_memory_engine.read_float(0x80555DF0))
-    speed.trace_add("write", partial(float_write, speed, 0x80555DF0))
+    if cfg.lks_region == "NTSC-U":
+        speed_pos = 0x80555DF0
+    elif cfg.lks_region == "PAL":
+        speed_pos = 0x80553218
+    speed = DoubleVar(value=dolphin_memory_engine.read_float(speed_pos))
+    speed.trace_add("write", partial(float_write, speed, speed_pos))
     ttk.Entry(debug_top_menu_tab, textvariable=speed).grid(column=4, row=1, sticky='n')
 
-ver_num = "0.7.0_dev"
+ver_num = "0.8.0"
 cfg.root.title("LKS Cheat Tool v" + ver_num)
 frm = ttk.Frame(cfg.root, padding=10)
 frm.grid()
