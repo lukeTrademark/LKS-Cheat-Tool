@@ -5,7 +5,7 @@ LKS Cheat Tool is a program that hooks onto the Wii game Little King's Story and
 ## Features
 
 **General**: Edit your quantity of Bol, activate/deactivate a variety of key items and book entries, place arbitrary items inside your inventory, etc. You can even increase your inventory's capacity and use those new slots! (LKS only prepared for up to 100, though, and it also doesn't play nice when slots aren't filled sequentially...)  
-**Game State**: Change your current chapter, what kings and guardians you have defeated, or set your castle level. Sometimes doesn't play as nice as you'd like, but a save and load can do wonders.
+**Game State**: Change your current chapter, what kings and guardians you have defeated, or set your castle level. Sometimes doesn't play as nice as you'd like, but a save and load can do wonders.  
 **Citizens**: Access the data about your citizens by internal ID or active presense in the Royal Guard and modify their position, name, job, etc.  
 **Kingdom Plan**: Enable/Disable any kingdom plan at will, regardless of if it's even presently available to you.  
 **Advanced**: Check/Flip any bit flag, check/alter any counting flag, or teleport Corobo via grid ID. Not very user friendly!  
