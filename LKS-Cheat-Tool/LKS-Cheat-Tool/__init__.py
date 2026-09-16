@@ -221,6 +221,18 @@ def construct_inventory_menu():
             Label(curr_frame, text=name).grid(column=i%width, row=1+(2*(i//width)))
             create_flag_box(offset + int(entries[0][i]), bools[0], curr_frame, name, key_item_images[0]).grid(column=i%width, row=2+(2*(i//width)))
 
+    curr_frame = key_item_frames[9]
+    create_live_entry(curr_frame, "word", 0x9041BAD8).grid(column=0, row=2)
+    create_live_entry(curr_frame, "word", 0x9041BAD4).grid(column=1, row=2)
+    create_live_entry(curr_frame, "word", 0x9041BADC).grid(column=4, row=2)
+    create_live_entry(curr_frame, "cvar", 60).grid(column=3, row=5)
+    record_categories = ["Citizen Count", "Bol Saved", "Kingdom Plan", "Jobs Found", "Steps Taken", "UMA Beaten", "Arms Found", "Armor Found", "Secret!"]
+    for i in list(range(9)):
+        category = record_categories[i]
+        key_item_images.insert(0, PhotoImage(file=path.abspath(path.dirname(__file__)+"/Images/Record_Pages/"+category+".png")))
+        Label(curr_frame, text=category).grid(column=i%5, row=3*(i//5)+1)
+        Label(curr_frame, image=key_item_images[0]).grid(column=i%5, row=3*(i//5)+3)
+
 def construct_gamestate_menu():
     
     slot = 2
@@ -290,10 +302,7 @@ def construct_citizens_menu():
     rg_section = ttk.Labelframe(citizens_top_menu_tab, text="Royal Guard")
     rg_section.grid(column=2, row=0, rowspan=5)
     Label(rg_section, text="Royal Guard Cap").grid(column=0, row=0, sticky='e')
-    rg_max = IntVar()
-    Entry(rg_section, textvariable=rg_max).grid(column=1, row=0, sticky='w')
-    rg_max.trace_add('write', partial(set_cvar, IntVar(value=41), rg_max))
-    update_loop('byte', 0x9041AC9A, rg_max)
+    create_live_entry(rg_section, "cvar", 41).grid(column=1, row=0, sticky='w')
     rg_scroll_frame = create_scroll_frame(rg_section, 0, 1, 750, 420, 3)
     rg_subframes = []
     chartypes = []
@@ -422,7 +431,7 @@ def construct_debug_menu():
     speed.trace_add("write", partial(float_write, speed, speed_pos))
     ttk.Entry(debug_top_menu_tab, textvariable=speed).grid(column=4, row=1, sticky='n')
 
-ver_num = "0.8.0"
+ver_num = "0.8.0_dev"
 cfg.root.title("LKS Cheat Tool v" + ver_num)
 frm = ttk.Frame(cfg.root, padding=10)
 frm.grid()

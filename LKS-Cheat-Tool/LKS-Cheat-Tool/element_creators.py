@@ -43,10 +43,14 @@ def create_live_entry(frame, mode, pos, state=['normal']):
         bol = IntVar()
         bol.trace_add("write", partial(word_write, bol, pos))
         update_loop("word", pos, bol)
-    if mode == "float":
+    elif mode == "float":
         bol = DoubleVar()
         bol.trace_add("write", partial(float_write, bol, pos))
         update_loop("float", pos, bol)
+    elif mode == "cvar":
+        bol = IntVar()
+        bol.trace_add('write', partial(set_cvar, IntVar(value=pos), bol))
+        update_loop("byte", pos + 0x9041AC71, bol)
     return ttk.Entry(frame, textvariable=bol, state=state)
 
 def view_inv_slot(*args):
@@ -164,19 +168,15 @@ def update_loop(type, pos, var, db=[]):
 
     if type == "bit_flag":
         var.set(check_flag(pos))
-        
-    if type == "byte":
+    elif type == "byte":
         var.set(dolphin_memory_engine.read_byte(get_save_pos(pos)))
-        
-    if type == "word":
+    elif type == "word":
         new = dolphin_memory_engine.read_word(get_save_pos(pos))
         if var.get() != new:
-            var.set(new)
-            
-    if type == "float":
+            var.set(new)   
+    elif type == "float":
         var.set(dolphin_memory_engine.read_float(get_save_pos(pos)))
-
-    if type == "id":
+    elif type == "id":
         value = int(dolphin_memory_engine.read_bytes(get_save_pos(pos), 2).hex(), 16)
         if isinstance(db[0], str):
             if value >= len(db):
