@@ -39,6 +39,8 @@ def create_scroll_frame(upper_frame, column, row, width, height, columnspan=1, r
 
 def create_live_entry(frame, mode, pos, state=['normal']):
     
+    bol = 0
+    
     if mode == "word":
         bol = IntVar()
         bol.trace_add("write", partial(word_write, bol, pos))

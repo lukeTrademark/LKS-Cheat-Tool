@@ -72,7 +72,7 @@ def wait_for_hook():
         if dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3EXJ":
             cfg.lks_region = "NTSC-U"
         elif dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3P99":
-            cfg.lks_region = "PAl"
+            cfg.lks_region = "PAL"
         else:
             cfg.lks_region = "Not Found"
         construct_inventory_menu()
@@ -224,7 +224,12 @@ def construct_inventory_menu():
     curr_frame = key_item_frames[9]
     create_live_entry(curr_frame, "word", 0x9041BAD8).grid(column=0, row=2)
     create_live_entry(curr_frame, "word", 0x9041BAD4).grid(column=1, row=2)
+    create_live_entry(curr_frame, "none", 0, ['disabled']).grid(column=2, row=2)
+    create_live_entry(curr_frame, "none", 0, ['disabled']).grid(column=3, row=2)
     create_live_entry(curr_frame, "word", 0x9041BADC).grid(column=4, row=2)
+    create_live_entry(curr_frame, "none", 0, ['disabled']).grid(column=0, row=5)
+    create_live_entry(curr_frame, "none", 0, ['disabled']).grid(column=1, row=5)
+    create_live_entry(curr_frame, "none", 0, ['disabled']).grid(column=2, row=5)
     create_live_entry(curr_frame, "cvar", 60).grid(column=3, row=5)
     record_categories = ["Citizen Count", "Bol Saved", "Kingdom Plan", "Jobs Found", "Steps Taken", "UMA Beaten", "Arms Found", "Armor Found", "Secret!"]
     for i in list(range(9)):

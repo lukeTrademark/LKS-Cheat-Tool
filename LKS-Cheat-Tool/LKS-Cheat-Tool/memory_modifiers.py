@@ -12,6 +12,8 @@ def get_save_pos(location):
         save_pos_ptr = 0x8055759C
     elif cfg.lks_region == "PAL":
         save_pos_ptr = 0x80555ABC
+        if (dolphin_memory_engine.read_word(save_pos_ptr) > 0xa0000000):
+            save_pos_ptr = 0x8061EB5C
     curr_save_pos = dolphin_memory_engine.read_word(save_pos_ptr)
     if curr_save_pos == 0 or location < 0x90000000:
         curr_save_pos = 0x903E8900
@@ -114,15 +116,15 @@ def id_write(new_result, db, pos, err=0):
     else:
         new_id = db[0][db[1].index(new)]
     
-    dolphin_memory_engine.write_byte(pos, int(new_id) // 256)
-    dolphin_memory_engine.write_byte(pos+1, int(new_id) % 256)
+    dolphin_memory_engine.write_byte(get_save_pos(pos), int(new_id) // 256)
+    dolphin_memory_engine.write_byte(get_save_pos(pos+1), int(new_id) % 256)
 
 def float_write(*args):
     
     var = args[0]
     pos = args[1]
     
-    dolphin_memory_engine.write_float(pos, var.get())
+    dolphin_memory_engine.write_float(get_save_pos(pos), var.get())
     
 def word_write(*args):
 
