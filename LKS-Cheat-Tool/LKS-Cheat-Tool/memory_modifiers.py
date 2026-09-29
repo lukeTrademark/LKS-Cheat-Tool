@@ -12,8 +12,8 @@ def get_save_pos(location):
         save_pos_ptr = 0x8055759C
     elif cfg.lks_region == "PAL":
         save_pos_ptr = 0x80555ABC
-        if (dolphin_memory_engine.read_word(save_pos_ptr) > 0xa0000000):
-            save_pos_ptr = 0x8061EB5C
+        #if (dolphin_memory_engine.read_word(save_pos_ptr) < 0x90000000):
+            #save_pos_ptr = 0x8061EB5C
     curr_save_pos = dolphin_memory_engine.read_word(save_pos_ptr)
     if curr_save_pos == 0 or location < 0x90000000:
         curr_save_pos = 0x903E8900

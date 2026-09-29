@@ -258,8 +258,8 @@ def construct_gamestate_menu():
     for i in list(range(3)):
         ttk.Radiobutton(castle_window, text=name_list[i], variable=cfg.castle_level, value=i).grid(column=0, row=i+1, sticky='w')
     get_castle_level()
-    cfg.curr_chapter.trace_add('write', partial(set_castle_level, cfg.castle_level))
-    
+    cfg.castle_level.trace_add('write', partial(set_castle_level, cfg.castle_level))
+
     king_window = ttk.Labelframe(gs_top_menu_tab, text="Kings Defeated")
     king_window.grid(column=2, row=0, columnspan=1, rowspan=3, sticky='n')
     king_list = ["Onii King", "King Duvroc", "King Shishkebaboo", "King Omelet", "King TV Dinnah", "King Long Sauvage", "King Jumbo Champloon"]

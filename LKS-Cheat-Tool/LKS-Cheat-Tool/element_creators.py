@@ -77,7 +77,7 @@ def view_citizen(*args):
             info.destroy()
     
     slot = int(args[1].get())
-    offset = get_save_pos(0x903F6B20 + (452 * slot))
+    offset = (0x903F6B20 + (452 * slot))
     
     name_db = args[2]
     job_db = args[3]
