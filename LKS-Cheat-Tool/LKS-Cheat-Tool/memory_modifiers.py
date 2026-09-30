@@ -17,6 +17,8 @@ def get_save_pos(location):
     curr_save_pos = dolphin_memory_engine.read_word(save_pos_ptr)
     if curr_save_pos == 0 or location < 0x90000000:
         curr_save_pos = 0x903E8900
+    elif cfg.lks_region == "PAL" & location > 0x92000000:
+        curr_save_pos -= 7008
     
     return location - init_save_pos + curr_save_pos
 

@@ -447,7 +447,7 @@ def construct_debug_menu():
     speed.trace_add("write", partial(float_write, speed, speed_pos))
     ttk.Entry(debug_top_menu_tab, textvariable=speed).grid(column=4, row=1, sticky='n')
 
-ver_num = "0.8.0_dev"
+ver_num = "0.8.0-dev"
 cfg.root.title("LKS Cheat Tool v" + ver_num)
 frm = ttk.Frame(cfg.root, padding=10)
 frm.grid()
