@@ -67,12 +67,21 @@ def view_inv_slot(*args):
     selector.grid(column=1, row=slot)
     selector['values'] = name_key[1]
     selector.bind('<<ComboboxSelected>>', partial(id_write, name, name_key, 0x9041E7A4 + (2 * slot)))
+    name.trace_add('unset', cfg.gimme_a_function_with_nothing)
     update_loop("id", 0x9041E7A4 + (2 * slot), name, name_key)
     
 def view_citizen(*args):
     
+    removable_vars = cfg.removable_vars
+    
     frame = args[0]
     for info in frame.winfo_children():
+        var = info.cget("textvariable")
+        if (var != '') :
+            for var_to_remove in removable_vars:
+                if str(var_to_remove) == var:
+                    if len(var_to_remove.trace_info()) > 0:
+                        var_to_remove.trace_remove(var_to_remove.trace_info()[0][0][0], var_to_remove.trace_info()[0][1])
         if frame.winfo_children().index(info) > 1:
             info.destroy()
     
@@ -88,7 +97,7 @@ def view_citizen(*args):
     floats = [["X Position", 20, ['normal']], ["Y Position", 24, ['normal']], ["Z Position", 28, ['normal']], ["Rotation", 32, ['readonly']]]
     vars = []
     partials = []
-    
+
     if args[5] == 'full':
         for flt in floats:
             vars.insert(0, DoubleVar(value=dolphin_memory_engine.read_float(get_save_pos(offset+flt[1]))))
@@ -120,12 +129,15 @@ def view_citizen(*args):
         partials.insert(0, partial(id_write, vars[0], id[2], offset+id[1]))
         dropdowns[0]['values'] = names
         dropdowns[0].bind('<<ComboboxSelected>>', partials[0])
+        vars[0].trace_add('unset', cfg.gimme_a_function_with_nothing)
         update_loop("id", offset+id[1], vars[0], id[2])
         index += 1
     
     if args[5] == 'full':
         tp = partial(teleport, [offset + 20, offset + 24, offset + 28], ["corobo"])
         ttk.Button(frame, text = "Warp to Me!", command = tp).grid(column=1, row=4, sticky='ew')
+
+    cfg.removable_vars += vars
 
 def find_and_build_citizen(*args):
     
@@ -189,7 +201,8 @@ def update_loop(type, pos, var, db=[]):
 
     looper = partial(update_loop, type, pos, var, db)
 
-    if type == "float":
-        cfg.root.after(100, looper)
-    else:
-        cfg.root.after(1000, looper)
+    if len(var.trace_info()) > 0:
+        if type == "float":
+            cfg.root.after(100, looper)
+        else:
+            cfg.root.after(1000, looper)

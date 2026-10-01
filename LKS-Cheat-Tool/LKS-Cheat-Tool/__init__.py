@@ -314,6 +314,7 @@ def construct_citizens_menu():
     item_key = keygen(path.abspath(path.dirname(__file__)+"/Tables/Items"))
     citizen_peek = partial(view_citizen, citizen_readout, selected_slot, name_key, job_key, item_key, 'full')
     citizen_selector.bind('<<ComboboxSelected>>', citizen_peek)
+    selected_slot.trace_add('unset', cfg.gimme_a_function_with_nothing)
     
     rg_section = ttk.Labelframe(citizens_top_menu_tab, text="Royal Guard")
     rg_section.grid(column=2, row=0, rowspan=5)
