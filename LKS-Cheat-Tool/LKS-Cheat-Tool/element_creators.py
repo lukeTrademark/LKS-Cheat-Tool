@@ -201,7 +201,7 @@ def update_loop(type, pos, var, db=[]):
 
     looper = partial(update_loop, type, pos, var, db)
 
-    if len(var.trace_info()) > 0:
+    if (type == "bit_flag") | (len(var.trace_info()) > 0):
         if type == "float":
             cfg.root.after(100, looper)
         else:

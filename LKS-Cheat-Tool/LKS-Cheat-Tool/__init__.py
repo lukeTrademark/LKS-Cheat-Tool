@@ -284,7 +284,7 @@ def construct_gamestate_menu():
     hitlist_window = ttk.Labelframe(gs_top_menu_tab, text="Can Fight")
     hitlist_window.grid(column=4, row=0, columnspan=1, rowspan=4, sticky='n')
     hitlist_list = ["Onii King", "King Duvroc", "King Shishkebaboo", "King Omelet", "King TV Dinnah", "King Long Sauvage", "King Jumbo Champloon", "Cow Bones", "Onii Man", "Yvonne", "Mush Bro", "Mush Geezer", "Clockwork Knight", "Owl Hag", "Ogre Ergo", "Radeeze", "Blue Dragon"]
-    hitlist_kill_flags = [[16389], [16395], [16398], [16413], [16619], [16425], [16429], [16443, 16444, 16445], [16385], [16569, 16571], [16555], [16557, 16558], [16539, 16540, 16612, 16616], [16543, 16544, 16545], [16562, 16563, 16564, 16565], [16549, 16550, 16551], [16453, 16577]]
+    hitlist_kill_flags = [[16389], [16395], [16398], [16413], [16619], [16425], [16429], [16443, 16444, 16445], [16385], [16569, 16571], [16555], [16557, 16558], [16616], [16545], [16562, 16563, 16564, 16565], [16549, 16550, 16551], [16453, 16577, 1232]]
     for i in list(range(7)):
         create_flag_box(hitlist_kill_flags[i], BooleanVar(), hitlist_window, hitlist_list[i]).grid(column=0, row=i, sticky='w')
     for i in list(range(10)):
@@ -448,7 +448,7 @@ def construct_debug_menu():
     speed.trace_add("write", partial(float_write, speed, speed_pos))
     ttk.Entry(debug_top_menu_tab, textvariable=speed).grid(column=4, row=1, sticky='n')
 
-ver_num = "0.8.0-dev"
+ver_num = "0.9.0"
 cfg.root.title("LKS Cheat Tool v" + ver_num)
 frm = ttk.Frame(cfg.root, padding=10)
 frm.grid()
