@@ -153,11 +153,11 @@ def find_and_build_citizen(*args):
     if var.get() != 0:
         index = 0
         chartype = 0
-        while (chartype != var.get()) & (index < 500):
+        while (chartype != var.get()) & (index < 330):
             chartype = dolphin_memory_engine.read_word(get_save_pos(0x903F6B20 + (452 * index)))
             index += 1
         index -= 1
-        if index < 499:
+        if index < 329:
             view_citizen(frame, IntVar(value=index), name_db, job_db, item_db, 'partial')
         else:
             Label(frame, text = "oh nooooooo").grid(column=0, row=0)

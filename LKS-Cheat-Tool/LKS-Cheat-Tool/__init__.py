@@ -22,81 +22,48 @@ def lks_hook():
     dolphin_memory_engine.hook()
     
     if (dolphin_memory_engine.is_hooked()):
-        if (dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3EXJ") | (dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3P99"):
-            hooked = True
+        hooked = True
+        if dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3EXJ":
+            cfg.lks_region = "NTSC-U"
+        elif dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3P99":
+            cfg.lks_region = "PAL"
+        elif dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3J99":
+            cfg.lks_region = "NTSC-J"
+        else:
+            cfg.lks_region = "Not Found"
+            hooked = False
     
     if not(hooked):
         dolphin_memory_engine.un_hook()
         cfg.root.after(1000, lks_hook)
     else:
-        enable_all(cfg.root)
+        cfg.loading_frame.destroy()
+        cfg.live_button.state(['!disabled'])
         
-def enable_all(section):
+def start_live_mode():
     
-    for widget in section.winfo_children():
-        type = widget.widgetName
-        if type == "ttk::notebook":
-            for tab in widget.winfo_children():
-                widget.tab(tab, state=['normal'])
-        else:
-            if (type != "ttk::frame") & (type != "ttk::labelframe") & (type != "frame") & (type != "ttk::canvas") & (type != "ttk::scrollbar") & (type != "ttk::progressbar"):
-                widget.configure(state=['normal'])
-        if widget.winfo_children != []:
-            enable_all(widget)
-            
-def disable_all(section):
-    
-    for widget in section.winfo_children():
-        type = widget.widgetName
-        if type == "ttk::notebook":
-            for tab in widget.winfo_children():
-                widget.tab(tab, state=['disabled'])
-        else:
-            if (type != "ttk::frame") & (type != "ttk::labelframe") & (type != "frame") & (type != "ttk::canvas") & (type != "ttk::scrollbar") & (type != "ttk::progressbar"):
-                widget.configure(state=['disabled'])
-        if widget.winfo_children != []:
-            disable_all(widget)
-
-def wait_for_hook():
-    
-    if len(cfg.root.winfo_children()) == 1:
-        loading_frame = ttk.Frame(cfg.root)
-        loading_frame.grid(column=0, row=0)
-        Label(loading_frame, text="Waiting for LKS...").grid(column=0, row=0)
-        bar = ttk.Progressbar(loading_frame, mode='indeterminate', length=200)
-        bar.grid(column=1, row=0)
-        bar.start(15)
-        
-    if dolphin_memory_engine.is_hooked():
-        cfg.root.winfo_children()[1].destroy()
-        if dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3EXJ":
-            cfg.lks_region = "NTSC-U"
-        elif dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3P99":
-            cfg.lks_region = "PAL"
-        else:
-            cfg.lks_region = "Not Found"
+    cfg.mode = "Live"
+    if len(cfg.top_menu.winfo_children()) == 0:
+        construct_top_menu()
         construct_inventory_menu()
         construct_gamestate_menu()
         construct_citizens_menu()
         construct_kingdom_plan_menu()
         construct_debug_menu()
-    else:
-        cfg.root.after(1000, wait_for_hook)
 
 def construct_top_menu():
     
-    frame = cfg.root.winfo_children()[0]
+    ttk.Separator(cfg.main_frame, orient='horizontal').grid(column=0, row=1, columnspan=5, sticky='ew', pady=5)
     
-    top_menu = ttk.Notebook(frame)
-    top_menu.grid(column=0, row=2)
-    top_menu_tabs=[[ttk.Frame(top_menu), "General"], [ttk.Frame(top_menu), "Game State"], [ttk.Frame(top_menu), "Citizens"], [ttk.Frame(top_menu), "Kingdom Plans"], [ttk.Frame(top_menu), "Advanced"]]
+    cfg.top_menu.grid(column=0, row=2, columnspan=5)
+    top_menu_tabs=[[ttk.Frame(cfg.top_menu), "General"], [ttk.Frame(cfg.top_menu), "Game State"], [ttk.Frame(cfg.top_menu), "Citizens"], [ttk.Frame(cfg.top_menu), "Kingdom Plans"], [ttk.Frame(cfg.top_menu), "Advanced"]]
     for tab in top_menu_tabs:
-        top_menu.add(tab[0], text=tab[1])
+        cfg.top_menu.add(tab[0], text=tab[1])
         
 def construct_inventory_menu():
     
     slot = 1
-    inv_top_menu_tab = cfg.root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
+    inv_top_menu_tab = cfg.top_menu.winfo_children()[slot-1]
     
     ttk.Label(inv_top_menu_tab, text="Bol Count").grid(column=0, row=0, sticky='es')
     create_live_entry(inv_top_menu_tab, "word", 0x9041B350).grid(column=1, row=0, sticky='sw')
@@ -241,7 +208,7 @@ def construct_inventory_menu():
 def construct_gamestate_menu():
     
     slot = 2
-    gs_top_menu_tab = cfg.root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
+    gs_top_menu_tab = cfg.top_menu.winfo_children()[slot-1]
     
     chapter_window = ttk.Labelframe(gs_top_menu_tab, text="Chapter Select")
     chapter_window.grid(column=0, row=0, columnspan=2, rowspan=3, sticky='ns')
@@ -295,7 +262,7 @@ def construct_gamestate_menu():
 def construct_citizens_menu():
     
     slot = 3
-    citizens_top_menu_tab = cfg.root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
+    citizens_top_menu_tab = cfg.top_menu.winfo_children()[slot-1]
     
     index = 24
     while (dolphin_memory_engine.read_word(get_save_pos(0x903F6B20 + (452 * index))) != 0):
@@ -336,7 +303,7 @@ def construct_citizens_menu():
 def construct_kingdom_plan_menu():
     
     slot = 4
-    kp_top_menu_tab = cfg.root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
+    kp_top_menu_tab = cfg.top_menu.winfo_children()[slot-1]
    
     kingdom_plan_menu = ttk.Notebook(kp_top_menu_tab)
     global tab_images
@@ -378,7 +345,7 @@ def construct_kingdom_plan_menu():
 def construct_debug_menu():
     
     slot = 5
-    debug_top_menu_tab = cfg.root.winfo_children()[0].winfo_children()[0].winfo_children()[slot-1]
+    debug_top_menu_tab = cfg.top_menu.winfo_children()[slot-1]
     
     bit_frame = ttk.Labelframe(debug_top_menu_tab, text="Bit Flags")
     counter_frame = ttk.Labelframe(debug_top_menu_tab, text="Counter Flags")
@@ -448,17 +415,10 @@ def construct_debug_menu():
     speed.trace_add("write", partial(float_write, speed, speed_pos))
     ttk.Entry(debug_top_menu_tab, textvariable=speed).grid(column=4, row=1, sticky='n')
 
-ver_num = "0.9.0"
-cfg.root.title("LKS Cheat Tool v" + ver_num)
-frm = ttk.Frame(cfg.root, padding=10)
-frm.grid()
+cfg.save_edit_button.configure(command = start_live_mode)
+cfg.live_button.configure(command = start_live_mode)
 
-construct_top_menu()
-
-disable_all(cfg.root)
-wait_for_hook()
 lks_hook()
-
 cfg.root.mainloop()
 
 dolphin_memory_engine.un_hook()
