@@ -8,19 +8,27 @@ from tkinter import *
 def get_save_pos(location):
     
     init_save_pos = 0x903E8900
-    if cfg.lks_region == "NTSC-U":
-        save_pos_ptr = 0x8055759C
-    elif cfg.lks_region == "PAL":
-        save_pos_ptr = 0x80555ABC
-        #if (dolphin_memory_engine.read_word(save_pos_ptr) < 0x90000000):
-            #save_pos_ptr = 0x8061EB5C
-    curr_save_pos = dolphin_memory_engine.read_word(save_pos_ptr)
-    if curr_save_pos == 0 or location < 0x90000000:
-        curr_save_pos = 0x903E8900
-    elif (cfg.lks_region == "PAL") & (location > 0x92000000):
-        curr_save_pos -= 7008
     
-    return location - init_save_pos + curr_save_pos
+    if cfg.mode == "Live":
+        if cfg.lks_region == "NTSC-U":
+            save_pos_ptr = 0x8055759C
+        elif cfg.lks_region == "PAL":
+            save_pos_ptr = 0x80555ABC
+            #if (dolphin_memory_engine.read_word(save_pos_ptr) < 0x90000000):
+                #save_pos_ptr = 0x8061EB5C
+        curr_save_pos = dolphin_memory_engine.read_word(save_pos_ptr)
+        if curr_save_pos == 0 or location < 0x90000000:
+            curr_save_pos = 0x903E8900
+        elif (cfg.lks_region == "PAL") & (location > 0x92000000):
+            curr_save_pos -= 7008
+        
+        return location - init_save_pos + curr_save_pos
+    
+    elif cfg.mode == "Save Editor":
+        file_pos = location - init_save_pos
+        if (file_pos >= 0x35EA0) | (file_pos < 0):
+            file_pos = -1
+        return file_pos
 
 def check_flag(flag_index):
     

@@ -11,9 +11,10 @@ top_menu = ttk.Notebook(main_frame)
 
 curr_chapter = IntVar()
 castle_level = IntVar()
-lks_region = "Not Set"
+lks_region = "NTSC-U"
 removable_vars = []
 mode = "Waiting"
+save_file = 0
 
 loading_frame = ttk.Frame(main_frame)
 loading_frame.grid(column=1, row=0)
@@ -22,7 +23,7 @@ bar = ttk.Progressbar(loading_frame, mode='indeterminate', length=100)
 bar.grid(column=1, row=0)
 bar.start(15)
 
-save_edit_button = ttk.Button(main_frame, text="Start Save Editor", state=['disabled'], width=25)
+save_edit_button = ttk.Button(main_frame, text="Start Save Editor", width=25)
 live_button = ttk.Button(main_frame, text="Start Live Mode", state=['disabled'], width=25)
 quit_button = ttk.Button(main_frame, text="Quit", command=root.quit, width=15)
 save_edit_button.grid(column=0, row=0, sticky='ew')

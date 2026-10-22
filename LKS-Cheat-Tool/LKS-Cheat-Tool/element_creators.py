@@ -41,25 +41,31 @@ def create_live_entry(frame, mode, pos, state=['normal']):
     
     bol = 0
     
-    if mode == "word":
-        bol = IntVar()
-        bol.trace_add("write", partial(word_write, bol, pos))
-        update_loop("word", pos, bol)
-    elif mode == "float":
-        bol = DoubleVar()
-        bol.trace_add("write", partial(float_write, bol, pos))
-        update_loop("float", pos, bol)
-    elif mode == "cvar":
-        bol = IntVar()
-        bol.trace_add('write', partial(set_cvar, IntVar(value=pos), bol))
-        update_loop("byte", pos + 0x9041AC71, bol)
-    return ttk.Entry(frame, textvariable=bol, state=state)
+    if get_save_pos(pos) == -1:
+        return ttk.Entry(frame, textvariable=StringVar(), state=['disabled'])
+    else:
+        if mode == "word":
+            bol = IntVar()
+            bol.trace_add("write", partial(word_write, bol, pos))
+            update_loop("word", pos, bol)
+        elif mode == "float":
+            bol = DoubleVar()
+            bol.trace_add("write", partial(float_write, bol, pos))
+            update_loop("float", pos, bol)
+        elif mode == "cvar":
+            bol = IntVar()
+            bol.trace_add('write', partial(set_cvar, IntVar(value=pos), bol))
+            update_loop("byte", pos + 0x9041AC71, bol)
+        return ttk.Entry(frame, textvariable=bol, state=state)
 
 def view_inv_slot(*args):
     
     frame = args[2]    
     slot = args[0]
-    id = dolphin_memory_engine.read_bytes(get_save_pos(0x9041E7A4 + (2 * slot)), 2)
+    if cfg.mode == "Live":
+        id = dolphin_memory_engine.read_bytes(get_save_pos(0x9041E7A4 + (2 * slot)), 2)
+    elif cfg.mode == "Save Editor":
+        id = b'0000'
     name_key = args[1]
     name = StringVar(value=read_table(name_key, str(int(id.hex(), 16))))
     Label(frame, text="Inventory Slot "+str(slot+1)+": ").grid(column=0, row=slot, sticky='w')
@@ -180,29 +186,31 @@ def teleport(var_array, coord_array, grid_array = []):
 
 def update_loop(type, pos, var, db=[]):
 
-    if type == "bit_flag":
-        var.set(check_flag(pos))
-    elif type == "byte":
-        var.set(dolphin_memory_engine.read_byte(get_save_pos(pos)))
-    elif type == "word":
-        new = dolphin_memory_engine.read_word(get_save_pos(pos))
-        if var.get() != new:
-            var.set(new)   
-    elif type == "float":
-        var.set(dolphin_memory_engine.read_float(get_save_pos(pos)))
-    elif type == "id":
-        value = int(dolphin_memory_engine.read_bytes(get_save_pos(pos), 2).hex(), 16)
-        if isinstance(db[0], str):
-            if value >= len(db):
-                value = len(db) - 1
-            var.set(db[value])
-        else:
-            var.set(read_table(db, str(value)))
-
-    looper = partial(update_loop, type, pos, var, db)
-
-    if (type == "bit_flag") | (len(var.trace_info()) > 0):
-        if type == "float":
-            cfg.root.after(100, looper)
-        else:
-            cfg.root.after(1000, looper)
+    if cfg.mode == "Live":
+        
+        if type == "bit_flag":
+            var.set(check_flag(pos))
+        elif type == "byte":
+            var.set(dolphin_memory_engine.read_byte(get_save_pos(pos)))
+        elif type == "word":
+            new = dolphin_memory_engine.read_word(get_save_pos(pos))
+            if var.get() != new:
+                var.set(new)   
+        elif type == "float":
+            var.set(dolphin_memory_engine.read_float(get_save_pos(pos)))
+        elif type == "id":
+            value = int(dolphin_memory_engine.read_bytes(get_save_pos(pos), 2).hex(), 16)
+            if isinstance(db[0], str):
+                if value >= len(db):
+                    value = len(db) - 1
+                var.set(db[value])
+            else:
+                var.set(read_table(db, str(value)))
+    
+        looper = partial(update_loop, type, pos, var, db)
+    
+        if (type == "bit_flag") | (len(var.trace_info()) > 0):
+            if type == "float":
+                cfg.root.after(100, looper)
+            else:
+                cfg.root.after(1000, looper)

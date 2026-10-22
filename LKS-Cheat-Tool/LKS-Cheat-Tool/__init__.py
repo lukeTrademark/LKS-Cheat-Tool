@@ -10,6 +10,7 @@ import threading
 import fileinput
 from tkinter import *
 from tkinter import ttk
+from tkinter import filedialog
 from functools import partial
 from fileinput import FileInput
 from os import path
@@ -43,6 +44,17 @@ def lks_hook():
 def start_live_mode():
     
     cfg.mode = "Live"
+    if len(cfg.top_menu.winfo_children()) == 0:
+        construct_top_menu()
+        construct_inventory_menu()
+        construct_gamestate_menu()
+        construct_citizens_menu()
+        construct_kingdom_plan_menu()
+        construct_debug_menu()
+
+def start_save_editor_mode():
+    
+    cfg.mode = "Save Editor"
     if len(cfg.top_menu.winfo_children()) == 0:
         construct_top_menu()
         construct_inventory_menu()
@@ -95,10 +107,13 @@ def construct_inventory_menu():
     
     standard_inventory = ttk.Labelframe(inv_top_menu_tab, text="Inventory")
     standard_inventory.grid(column=5, row=0, rowspan=7)
-    inv_scroll_frame = create_scroll_frame(standard_inventory, 0, 0, 300, 225)
-    inventory_contents = keygen(path.abspath(path.dirname(__file__)+"/Tables/Items"))
-    for i in list(range(100)):
-        view_inv_slot(i, inventory_contents, inv_scroll_frame)
+    if cfg.mode == "Live":
+        inv_scroll_frame = create_scroll_frame(standard_inventory, 0, 0, 300, 225)
+        inventory_contents = keygen(path.abspath(path.dirname(__file__)+"/Tables/Items"))
+        for i in list(range(100)):
+            view_inv_slot(i, inventory_contents, inv_scroll_frame)
+    elif cfg.mode == "Save Editor":
+        Label(standard_inventory, text="Not Available!").grid(column=0, row=0)
     
     global key_item_images
     key_item_images = []
@@ -265,10 +280,13 @@ def construct_citizens_menu():
     citizens_top_menu_tab = cfg.top_menu.winfo_children()[slot-1]
     
     index = 24
-    while (dolphin_memory_engine.read_word(get_save_pos(0x903F6B20 + (452 * index))) != 0):
-        offset = 0x903F6B20 + (452 * index)
+    if cfg.mode == "Live":
+        while (dolphin_memory_engine.read_word(get_save_pos(0x903F6B20 + (452 * index))) != 0):
+            offset = 0x903F6B20 + (452 * index)
+            index+=1
+    elif cfg.mode == "Save Editor":
         index+=1
-    
+
     ttk.Label(citizens_top_menu_tab, text="Citizen Number").grid(column=0, row=0, sticky='es')
     selected_slot = StringVar()
     citizen_selector = ttk.Combobox(citizens_top_menu_tab, textvariable=selected_slot)
@@ -287,18 +305,19 @@ def construct_citizens_menu():
     rg_section.grid(column=2, row=0, rowspan=5)
     Label(rg_section, text="Royal Guard Cap").grid(column=0, row=0, sticky='e')
     create_live_entry(rg_section, "cvar", 41).grid(column=1, row=0, sticky='w')
-    rg_scroll_frame = create_scroll_frame(rg_section, 0, 1, 750, 420, 3)
-    rg_subframes = []
-    chartypes = []
-    partials = []
-    for index in list(range(30)):
-        rg_subframes.append(ttk.Labelframe(rg_scroll_frame, text = "Slot " + str(index+1)))
-        slot = 0x92BC4310 + (index * 1736)
-        chartypes.append(IntVar(value=0))
-        partials.append(partial(find_and_build_citizen, chartypes[index], rg_subframes[index], name_key, job_key, item_key))
-        chartypes[index].trace_add('write', partials[index])
-        update_loop("word", slot+648, chartypes[index])
-        rg_subframes[index].grid(column=index%3, row=1+(index//3))
+    if cfg.mode == "Live":
+        rg_scroll_frame = create_scroll_frame(rg_section, 0, 1, 750, 420, 3)
+        rg_subframes = []
+        chartypes = []
+        partials = []
+        for index in list(range(30)):
+            rg_subframes.append(ttk.Labelframe(rg_scroll_frame, text = "Slot " + str(index+1)))
+            slot = 0x92BC4310 + (index * 1736)
+            chartypes.append(IntVar(value=0))
+            partials.append(partial(find_and_build_citizen, chartypes[index], rg_subframes[index], name_key, job_key, item_key))
+            chartypes[index].trace_add('write', partials[index])
+            update_loop("word", slot+648, chartypes[index])
+            rg_subframes[index].grid(column=index%3, row=1+(index//3))
 
 def construct_kingdom_plan_menu():
     
@@ -407,16 +426,21 @@ def construct_debug_menu():
     ttk.Button(construction_frame, text="Send!", command=partial(set_building, cons_selector, cons_mode)).grid(column=1, row=1, columnspan=3)
     
     Label(debug_top_menu_tab, text="Speed").grid(column=4, row=0, sticky='s')
-    if cfg.lks_region == "NTSC-U":
-        speed_pos = 0x80555DF0
-    elif cfg.lks_region == "PAL":
-        speed_pos = 0x80553218
-    speed = DoubleVar(value=dolphin_memory_engine.read_float(speed_pos))
-    speed.trace_add("write", partial(float_write, speed, speed_pos))
+    if cfg.mode == "Live":
+        if cfg.lks_region == "NTSC-U":
+            speed_pos = 0x80555DF0
+        elif cfg.lks_region == "PAL":
+            speed_pos = 0x80553218
+        speed = DoubleVar(value=dolphin_memory_engine.read_float(speed_pos))
+        speed.trace_add("write", partial(float_write, speed, speed_pos))
+    elif cfg.mode == "Save Editor":
+        speed = StringVar
     ttk.Entry(debug_top_menu_tab, textvariable=speed).grid(column=4, row=1, sticky='n')
 
-cfg.save_edit_button.configure(command = start_live_mode)
+cfg.save_edit_button.configure(command = start_save_editor_mode)
 cfg.live_button.configure(command = start_live_mode)
+
+#filedialog.LoadFileDialog(cfg.main_frame)
 
 lks_hook()
 cfg.root.mainloop()
