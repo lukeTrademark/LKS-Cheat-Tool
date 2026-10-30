@@ -14,6 +14,7 @@ def create_flag_box(flag, var, frame, name="none", image=""):
     else:
         flipper = partial(set_flag, flag, var)
         flag = flag[0]
+    var.set(check_flag(flag))
     if image != "":
         checkbox = ttk.Checkbutton(frame, image=image, command=flipper, variable=var)
     else:
@@ -47,14 +48,20 @@ def create_live_entry(frame, mode, pos, state=['normal']):
         if mode == "word":
             bol = IntVar()
             bol.trace_add("write", partial(word_write, bol, pos))
+            if cfg.mode == "Save Editor":
+                bol.set(int(cfg.save_file[get_save_pos(pos):get_save_pos(pos)+4].hex(), 16))
             update_loop("word", pos, bol)
         elif mode == "float":
             bol = DoubleVar()
             bol.trace_add("write", partial(float_write, bol, pos))
+            if cfg.mode == "Save Editor":
+                bol.set(struct.unpack('!f', cfg.save_file[get_save_pos(pos):get_save_pos(pos)+4]))
             update_loop("float", pos, bol)
         elif mode == "cvar":
             bol = IntVar()
             bol.trace_add('write', partial(set_cvar, IntVar(value=pos), bol))
+            if cfg.mode == "Save Editor":
+                bol.set(int(cfg.save_file[get_save_pos(pos + 0x9041AC71)].hex(), 16))
             update_loop("byte", pos + 0x9041AC71, bol)
         return ttk.Entry(frame, textvariable=bol, state=state)
 
@@ -187,7 +194,6 @@ def teleport(var_array, coord_array, grid_array = []):
 def update_loop(type, pos, var, db=[]):
 
     if cfg.mode == "Live":
-        
         if type == "bit_flag":
             var.set(check_flag(pos))
         elif type == "byte":
@@ -206,11 +212,14 @@ def update_loop(type, pos, var, db=[]):
                 var.set(db[value])
             else:
                 var.set(read_table(db, str(value)))
+
+    looper = partial(update_loop, type, pos, var, db)
     
-        looper = partial(update_loop, type, pos, var, db)
-    
-        if (type == "bit_flag") | (len(var.trace_info()) > 0):
+    if (type == "bit_flag") | (len(var.trace_info()) > 0):
+        if cfg.mode == "Live":
             if type == "float":
                 cfg.root.after(100, looper)
             else:
                 cfg.root.after(1000, looper)
+        else:
+            cfg.root.after(10000, looper)

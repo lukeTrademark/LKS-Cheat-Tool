@@ -3,6 +3,7 @@ import cfg
 
 import dolphin_memory_engine
 import tkinter
+import struct
 from tkinter import *
 
 def get_save_pos(location):
@@ -32,50 +33,65 @@ def get_save_pos(location):
 
 def check_flag(flag_index):
     
-    if dolphin_memory_engine.is_hooked():
-        flag_start = get_save_pos(0x9041A971)
-        flag_position = flag_start + (flag_index // 8)
-        if flag_index > 100000:
-            flag_position = get_save_pos(flag_index // 8)
+    flag_start = get_save_pos(0x9041A971)
+    flag_position = flag_start + (flag_index // 8)
+    if flag_index > 100000:
+        flag_position = get_save_pos(flag_index // 8)
+    if (cfg.mode == "Live") & dolphin_memory_engine.is_hooked():
         hex_value = dolphin_memory_engine.read_byte(flag_position)
+        return (int(hex_value) & 2**(flag_index%8)) > 0
+    elif cfg.mode == "Save Editor":
+        hex_value = cfg.save_file[flag_position]
         return (int(hex_value) & 2**(flag_index%8)) > 0
     else:
         return False
 
 def flip_flag(flag_index):
-    
-    if dolphin_memory_engine.is_hooked():
-        flag_start = get_save_pos(0x9041A971)
-        flag_position = flag_start + (flag_index // 8)
-        if flag_index > 100000:
-            flag_position = get_save_pos(flag_index // 8)
+
+    flag_start = get_save_pos(0x9041A971)
+    flag_position = flag_start + (flag_index // 8)
+    if flag_index > 100000:
+        flag_position = get_save_pos(flag_index // 8)
+    if (cfg.mode == "Live") & dolphin_memory_engine.is_hooked():
         hex_value = dolphin_memory_engine.read_byte(flag_position)
-        is_active = ((int(hex_value) & 2**(flag_index%8))) > 0
-        if (is_active):
-            new_hex = ((int(hex_value) - 2**(flag_index%8)))
-        else:
-            new_hex = ((int(hex_value) + 2**(flag_index%8)))
+    elif cfg.mode == "Save Editor":
+        hex_value = cfg.save_file[flag_position]
+    is_active = ((int(hex_value) & 2**(flag_index%8))) > 0
+    if (is_active):
+        new_hex = ((int(hex_value) - 2**(flag_index%8)))
+    else:
+        new_hex = ((int(hex_value) + 2**(flag_index%8)))
+    if (cfg.mode == "Live") & dolphin_memory_engine.is_hooked():
         dolphin_memory_engine.write_byte(flag_position, new_hex)
+    elif cfg.mode == "Save Editor":
+        cfg.save_file[flag_position] = new_hex
 
 def set_flag(*args):
 
-    if dolphin_memory_engine.is_hooked():
-        if not(isinstance(args[0], IntVar)) and not(isinstance(args[0], int)):
-            new_args = args
-            for i in args[0]:
-                set_flag(i, args[1])
+    if not(isinstance(args[0], IntVar)) and not(isinstance(args[0], int)):
+        new_args = args
+        for i in args[0]:
+            set_flag(i, args[1])
+    else:
+        if isinstance(args[0], IntVar):
+            flag = args[0].get()
         else:
-            if isinstance(args[0], IntVar):
-                flag = args[0].get()
-            else:
-                flag = args[0]
-            flag_start = get_save_pos(0x9041A971)
-            flag_position = flag_start + (flag // 8)
+            flag = args[0]
+        flag_start = get_save_pos(0x9041A971)
+        flag_position = flag_start + (flag // 8)
+        if (cfg.mode == "Live") & dolphin_memory_engine.is_hooked():
             hex_value = dolphin_memory_engine.read_byte(flag_position)
             if args[1].get():
                 dolphin_memory_engine.write_byte(flag_position, hex_value | (2**(flag % 8)))
             else:
                 dolphin_memory_engine.write_byte(flag_position, hex_value & ~(2**(flag % 8)))
+        elif cfg.mode == "Save Editor":
+            hex_value = cfg.save_file[flag_position]
+            if args[1].get():
+                cfg.save_file[flag_position] = hex_value | (2**(flag % 8))
+            else:
+                cfg.save_file[flag_position] = hex_value & ~(2**(flag % 8))
+
 
 def flag_readout(*args):
     
@@ -134,11 +150,20 @@ def float_write(*args):
     var = args[0]
     pos = args[1]
     
-    dolphin_memory_engine.write_float(get_save_pos(pos), var.get())
+    if cfg.mode == "Live":
+        dolphin_memory_engine.write_float(get_save_pos(pos), var.get())
+    else:
+        cfg.save_data[get_save_pos(pos)] = struct.pack('!f', var.get())
     
 def word_write(*args):
 
-    dolphin_memory_engine.write_word(get_save_pos(args[1]), args[0].get())
+    var = args[0]
+    pos = args[1]
+    
+    if cfg.mode == "Live":
+        dolphin_memory_engine.write_word(get_save_pos(pos), var.get())
+    else:
+        cfg.save_data[get_save_pos(pos)] = struct.pack('!i', var.get())
     
 def get_building(*args):
     

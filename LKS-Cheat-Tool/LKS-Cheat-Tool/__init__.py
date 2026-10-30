@@ -15,6 +15,7 @@ from functools import partial
 from fileinput import FileInput
 from os import path
 from os import listdir
+from pathlib import Path
 
 def lks_hook():
     
@@ -62,6 +63,14 @@ def start_save_editor_mode():
         construct_citizens_menu()
         construct_kingdom_plan_menu()
         construct_debug_menu()
+
+def load_save_file():
+    curr_save_file_path = tkinter.filedialog.askopenfilename(title="Load Little King's Story Save File")
+    curr_save_file = Path(curr_save_file_path).read_bytes()
+    if len(curr_save_file) == 220832:
+        cfg.save_file_path = curr_save_file_path
+        cfg.save_file = bytearray(curr_save_file)
+        cfg.save_edit_button.state(['!disabled'])
 
 def construct_top_menu():
     
@@ -273,7 +282,6 @@ def construct_gamestate_menu():
         create_flag_box(hitlist_kill_flags[i+7], BooleanVar(), hitlist_window, hitlist_list[i+7]).grid(column=1, row=i, sticky='w')
     Label(hitlist_window, text="Shishkebaboo uses an unused\nevent trigger instead of the\nhouse for the tickbox").grid(column=0, row=7, rowspan=3)
 
-
 def construct_citizens_menu():
     
     slot = 3
@@ -439,6 +447,7 @@ def construct_debug_menu():
 
 cfg.save_edit_button.configure(command = start_save_editor_mode)
 cfg.live_button.configure(command = start_live_mode)
+cfg.load_file_button.configure(command = load_save_file)
 
 #filedialog.LoadFileDialog(cfg.main_frame)
 

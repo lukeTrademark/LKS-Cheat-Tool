@@ -14,6 +14,7 @@ castle_level = IntVar()
 lks_region = "NTSC-U"
 removable_vars = []
 mode = "Waiting"
+save_file_path = 0
 save_file = 0
 
 loading_frame = ttk.Frame(main_frame)
@@ -23,11 +24,13 @@ bar = ttk.Progressbar(loading_frame, mode='indeterminate', length=100)
 bar.grid(column=1, row=0)
 bar.start(15)
 
-save_edit_button = ttk.Button(main_frame, text="Start Save Editor", width=25)
+save_edit_button = ttk.Button(main_frame, text="Start Save Editor", state=['disabled'], width=25)
 live_button = ttk.Button(main_frame, text="Start Live Mode", state=['disabled'], width=25)
+load_file_button = ttk.Button(main_frame, text="Load Save File", width=15)
 quit_button = ttk.Button(main_frame, text="Quit", command=root.quit, width=15)
 save_edit_button.grid(column=0, row=0, sticky='ew')
 live_button.grid(column=1, row=0, sticky='ew')
+load_file_button.grid(column=2, row=0, sticky='e')
 quit_button.grid(column=4, row=0, sticky='e')
 
 loading_frame.tkraise()
