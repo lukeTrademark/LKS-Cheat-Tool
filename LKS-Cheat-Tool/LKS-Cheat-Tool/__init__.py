@@ -72,6 +72,15 @@ def load_save_file():
         cfg.save_file_path = curr_save_file_path
         cfg.save_file = bytearray(curr_save_file)
         cfg.save_edit_button.state(['!disabled'])
+        cfg.save_file_button.state(['!disabled'])
+
+def save_current_file():
+    
+    new_file_path = tkinter.filedialog.asksaveasfilename(initialfile=cfg.save_file_path)
+    new_file = open(new_file_path, "wb")
+    new_file.write(cfg.save_file)
+    cfg.save_file_path = new_file_path
+    new_file.close()
 
 def construct_top_menu():
     
@@ -81,7 +90,7 @@ def construct_top_menu():
     top_menu_tabs=[[ttk.Frame(cfg.top_menu), "General"], [ttk.Frame(cfg.top_menu), "Game State"], [ttk.Frame(cfg.top_menu), "Citizens"], [ttk.Frame(cfg.top_menu), "Kingdom Plans"], [ttk.Frame(cfg.top_menu), "Advanced"]]
     for tab in top_menu_tabs:
         cfg.top_menu.add(tab[0], text=tab[1])
-        
+    
 def construct_inventory_menu():
     
     slot = 1
@@ -451,6 +460,7 @@ def construct_debug_menu():
 cfg.save_edit_button.configure(command = start_save_editor_mode)
 cfg.live_button.configure(command = start_live_mode)
 cfg.load_file_button.configure(command = load_save_file)
+cfg.save_file_button.configure(command = save_current_file)
 
 lks_hook()
 cfg.root.mainloop()
