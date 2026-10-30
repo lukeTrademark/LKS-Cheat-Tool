@@ -449,8 +449,6 @@ cfg.save_edit_button.configure(command = start_save_editor_mode)
 cfg.live_button.configure(command = start_live_mode)
 cfg.load_file_button.configure(command = load_save_file)
 
-#filedialog.LoadFileDialog(cfg.main_frame)
-
 lks_hook()
 cfg.root.mainloop()
 

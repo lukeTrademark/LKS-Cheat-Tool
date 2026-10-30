@@ -55,7 +55,7 @@ def create_live_entry(frame, mode, pos, state=['normal']):
             bol = DoubleVar()
             bol.trace_add("write", partial(float_write, bol, pos))
             if cfg.mode == "Save Editor":
-                bol.set(struct.unpack('!f', cfg.save_file[get_save_pos(pos):get_save_pos(pos)+4]))
+                bol.set(struct.unpack('!f', cfg.save_file[get_save_pos(pos):get_save_pos(pos)+4])[0])
             update_loop("float", pos, bol)
         elif mode == "cvar":
             bol = IntVar()

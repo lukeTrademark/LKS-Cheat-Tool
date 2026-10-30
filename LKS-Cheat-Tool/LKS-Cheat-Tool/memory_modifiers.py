@@ -147,24 +147,24 @@ def id_write(new_result, db, pos, err=0):
 
 def float_write(*args):
     
-    var = args[0]
-    pos = args[1]
+    var = args[0].get()
+    pos = get_save_pos(args[1])
     
     if cfg.mode == "Live":
-        dolphin_memory_engine.write_float(get_save_pos(pos), var.get())
+        dolphin_memory_engine.write_float(pos, var)
     else:
-        cfg.save_data[get_save_pos(pos)] = struct.pack('!f', var.get())
-    
+        cfg.save_file[pos:pos+4] = struct.pack('!f', var)
+
 def word_write(*args):
 
-    var = args[0]
-    pos = args[1]
+    var = args[0].get()
+    pos = get_save_pos(args[1])
     
     if cfg.mode == "Live":
-        dolphin_memory_engine.write_word(get_save_pos(pos), var.get())
+        dolphin_memory_engine.write_word(pos, var)
     else:
-        cfg.save_data[get_save_pos(pos)] = struct.pack('!i', var.get())
-    
+        cfg.save_file[pos:pos+4] = struct.pack('!i', var)
+
 def get_building(*args):
     
     index = args[0].get()
