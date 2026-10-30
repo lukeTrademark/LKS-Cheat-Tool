@@ -113,7 +113,10 @@ def view_citizen(*args):
 
     if args[5] == 'full':
         for flt in floats:
-            vars.insert(0, DoubleVar(value=dolphin_memory_engine.read_float(get_save_pos(offset+flt[1]))))
+            if cfg.mode == "Live":
+                vars.insert(0, DoubleVar(value=dolphin_memory_engine.read_float(get_save_pos(offset+flt[1]))))
+            elif cfg.mode == "Save Editor":
+                vars.insert(0, DoubleVar(value=cfg.save_file[get_save_pos(offset+flt[1])]))
             Label(frame, text=flt[0]).grid(column=0, row=index)
             Entry(frame, textvariable=vars[0], state=flt[2]).grid(column=1, row=index)
             partials.insert(0, partial(float_write, vars[0], offset+flt[1]))
@@ -126,7 +129,10 @@ def view_citizen(*args):
     dropdowns = []
     
     for id in ids:
-        slot = dolphin_memory_engine.read_bytes(get_save_pos(offset+id[1]), 2)
+        if cfg.mode == "Live":
+            slot = dolphin_memory_engine.read_bytes(get_save_pos(offset+id[1]), 2)
+        elif cfg. mode == "Save Editor":
+            slot = cfg.save_file[get_save_pos(offset+id[1]):get_save_pos(offset+id[1])+2]
         slot = int(slot.hex(), 16)
         if len(id[2]) > 2:
             names = id[2]
@@ -146,7 +152,7 @@ def view_citizen(*args):
         update_loop("id", offset+id[1], vars[0], id[2])
         index += 1
     
-    if args[5] == 'full':
+    if (cfg.mode == "Live") & (args[5] == 'full'):
         tp = partial(teleport, [offset + 20, offset + 24, offset + 28], ["corobo"])
         ttk.Button(frame, text = "Warp to Me!", command = tp).grid(column=1, row=4, sticky='ew')
 
