@@ -42,7 +42,7 @@ def create_live_entry(frame, mode, pos, state=['normal']):
     
     bol = 0
     
-    if get_save_pos(pos) == -1:
+    if (get_save_pos(pos) == -1) & ((mode != "cvar") | (get_save_pos(pos + 0x9041AC71) == -1)):
         return ttk.Entry(frame, textvariable=StringVar(), state=['disabled'])
     else:
         if mode == "word":
@@ -61,7 +61,7 @@ def create_live_entry(frame, mode, pos, state=['normal']):
             bol = IntVar()
             bol.trace_add('write', partial(set_cvar, IntVar(value=pos), bol))
             if cfg.mode == "Save Editor":
-                bol.set(int(cfg.save_file[get_save_pos(pos + 0x9041AC71)].hex(), 16))
+                bol.set(cfg.save_file[get_save_pos(pos + 0x9041AC71)])
             update_loop("byte", pos + 0x9041AC71, bol)
         return ttk.Entry(frame, textvariable=bol, state=state)
 

@@ -110,10 +110,12 @@ def flag_readout(*args):
 
 def set_cvar(*args):
     
-    if dolphin_memory_engine.is_hooked():
-        flag_start = get_save_pos(0x9041AC71)
-        flag_position = flag_start + args[0].get()
+    flag_start = get_save_pos(0x9041AC71)
+    flag_position = flag_start + args[0].get()
+    if (cfg.mode == "Live") & dolphin_memory_engine.is_hooked():
         dolphin_memory_engine.write_byte(flag_position, args[1].get())
+    elif cfg.mode == "Save Editor":
+        cfg.save_file[flag_position] = args[1].get()
 
 def cflag_readout(*args):
     
@@ -123,8 +125,11 @@ def cflag_readout(*args):
     
     flag_table = keygen(path.abspath(path.dirname(__file__)+"/Tables/Counter_Flags"))
     name = read_table(flag_table, str(cflag.get()))
-    state = int(dolphin_memory_engine.read_byte(get_save_pos(cflag.get()+0x9041AC71)))
-    
+    if cfg.mode == "Live":
+        state = int(dolphin_memory_engine.read_byte(get_save_pos(cflag.get()+0x9041AC71)))
+    elif cfg.mode == "Save Editor":
+        state = int(cfg.save_file[get_save_pos(cflag.get()+0x9041AC71)])
+
     out_name.set(name)
     out_state.set(state)
     
@@ -142,8 +147,11 @@ def id_write(new_result, db, pos, err=0):
     else:
         new_id = db[0][db[1].index(new)]
     
-    dolphin_memory_engine.write_byte(get_save_pos(pos), int(new_id) // 256)
-    dolphin_memory_engine.write_byte(get_save_pos(pos+1), int(new_id) % 256)
+    if cfg.mode == "Live":
+        dolphin_memory_engine.write_byte(get_save_pos(pos), int(new_id) // 256)
+        dolphin_memory_engine.write_byte(get_save_pos(pos+1), int(new_id) % 256)
+    elif cfg.mode == "Save Editor":
+        cfg.save_file[get_save_pos(pos):get_save_pos(pos)+2] = struct.pack('!h', int(new_id))
 
 def float_write(*args):
     

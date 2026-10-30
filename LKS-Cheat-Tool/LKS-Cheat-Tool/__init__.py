@@ -65,6 +65,7 @@ def start_save_editor_mode():
         construct_debug_menu()
 
 def load_save_file():
+    
     curr_save_file_path = tkinter.filedialog.askopenfilename(title="Load Little King's Story Save File")
     curr_save_file = Path(curr_save_file_path).read_bytes()
     if len(curr_save_file) == 220832:
@@ -115,7 +116,7 @@ def construct_inventory_menu():
     create_live_entry(inv_top_menu_tab, "float", 0x903E8908).grid(column=4, row=6, sticky='nw')
     
     standard_inventory = ttk.Labelframe(inv_top_menu_tab, text="Inventory")
-    standard_inventory.grid(column=5, row=0, rowspan=7)
+    standard_inventory.grid(column=5, row=0, rowspan=7, sticky='nsew')
     if cfg.mode == "Live":
         inv_scroll_frame = create_scroll_frame(standard_inventory, 0, 0, 300, 225)
         inventory_contents = keygen(path.abspath(path.dirname(__file__)+"/Tables/Items"))
@@ -310,7 +311,7 @@ def construct_citizens_menu():
     selected_slot.trace_add('unset', cfg.gimme_a_function_with_nothing)
     
     rg_section = ttk.Labelframe(citizens_top_menu_tab, text="Royal Guard")
-    rg_section.grid(column=2, row=0, rowspan=5)
+    rg_section.grid(column=2, row=0, rowspan=5, sticky='nsew')
     Label(rg_section, text="Royal Guard Cap").grid(column=0, row=0, sticky='e')
     create_live_entry(rg_section, "cvar", 41).grid(column=1, row=0, sticky='w')
     if cfg.mode == "Live":
@@ -326,6 +327,8 @@ def construct_citizens_menu():
             chartypes[index].trace_add('write', partials[index])
             update_loop("word", slot+648, chartypes[index])
             rg_subframes[index].grid(column=index%3, row=1+(index//3))
+    elif cfg.mode == "Save Editor":
+        Label(rg_section, text="Not Available!").grid(column=0, row=1, columnspan=2, rowspan=4)
 
 def construct_kingdom_plan_menu():
     
