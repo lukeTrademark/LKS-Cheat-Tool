@@ -17,8 +17,14 @@ mode = "Waiting"
 save_file_path = 0
 save_file = 0
 
+mode_label = Label(main_frame, text="No Mode Selected")
+save_dir_label = Label(main_frame, text="Currently Selected Save File: None")
+
+mode_label.grid(column=0, row=0, sticky='w')
+save_dir_label.grid(column=1, row=0, columnspan=4, sticky='w')
+
 loading_frame = ttk.Frame(main_frame)
-loading_frame.grid(column=1, row=0)
+loading_frame.grid(column=1, row=1)
 Label(loading_frame, text="Waiting for LKS...").grid(column=0, row=0)
 bar = ttk.Progressbar(loading_frame, mode='indeterminate', length=100)
 bar.grid(column=1, row=0)
@@ -29,11 +35,11 @@ live_button = ttk.Button(main_frame, text="Start Live Mode", state=['disabled'],
 load_file_button = ttk.Button(main_frame, text="Load Save File", width=15)
 save_file_button = ttk.Button(main_frame, text="Save Current File", state=['disabled'], width=15)
 quit_button = ttk.Button(main_frame, text="Quit", command=root.quit, width=15)
-save_edit_button.grid(column=0, row=0, sticky='ew')
-live_button.grid(column=1, row=0, sticky='ew')
-load_file_button.grid(column=2, row=0, sticky='e')
-save_file_button.grid(column=3, row=0, sticky='w')
-quit_button.grid(column=4, row=0, sticky='e')
+save_edit_button.grid(column=0, row=1, sticky='ew')
+live_button.grid(column=1, row=1, sticky='ew')
+load_file_button.grid(column=2, row=1, sticky='e')
+save_file_button.grid(column=3, row=1, sticky='w')
+quit_button.grid(column=4, row=1, sticky='e')
 
 loading_frame.tkraise()
 

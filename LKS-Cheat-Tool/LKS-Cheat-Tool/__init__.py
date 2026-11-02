@@ -22,8 +22,8 @@ def lks_hook():
     hooked = False
     
     dolphin_memory_engine.hook()
-    
-    if (dolphin_memory_engine.is_hooked()):
+
+    if dolphin_memory_engine.is_hooked():
         hooked = True
         if dolphin_memory_engine.read_bytes(0x80000000, 6) == b"RO3EXJ":
             cfg.lks_region = "NTSC-U"
@@ -45,6 +45,7 @@ def lks_hook():
 def start_live_mode():
     
     cfg.mode = "Live"
+    cfg.mode_label.configure(text="Current Mode: Live")
     if len(cfg.top_menu.winfo_children()) == 0:
         construct_top_menu()
         construct_inventory_menu()
@@ -56,6 +57,7 @@ def start_live_mode():
 def start_save_editor_mode():
     
     cfg.mode = "Save Editor"
+    cfg.mode_label.configure(text="Current Mode: Save Editor")
     if len(cfg.top_menu.winfo_children()) == 0:
         construct_top_menu()
         construct_inventory_menu()
@@ -73,6 +75,7 @@ def load_save_file():
         cfg.save_file = bytearray(curr_save_file)
         cfg.save_edit_button.state(['!disabled'])
         cfg.save_file_button.state(['!disabled'])
+        cfg.save_dir_label.configure(text="Currently Selected Save File: " + cfg.save_file_path)
 
 def save_current_file():
     
@@ -80,13 +83,14 @@ def save_current_file():
     new_file = open(new_file_path, "wb")
     new_file.write(cfg.save_file)
     cfg.save_file_path = new_file_path
+    cfg.save_dir_label.configure(text="Currently Selected Save File: " + cfg.save_file_path)
     new_file.close()
 
 def construct_top_menu():
     
-    ttk.Separator(cfg.main_frame, orient='horizontal').grid(column=0, row=1, columnspan=5, sticky='ew', pady=5)
+    ttk.Separator(cfg.main_frame, orient='horizontal').grid(column=0, row=2, columnspan=5, sticky='ew', pady=5)
     
-    cfg.top_menu.grid(column=0, row=2, columnspan=5)
+    cfg.top_menu.grid(column=0, row=3, columnspan=5)
     top_menu_tabs=[[ttk.Frame(cfg.top_menu), "General"], [ttk.Frame(cfg.top_menu), "Game State"], [ttk.Frame(cfg.top_menu), "Citizens"], [ttk.Frame(cfg.top_menu), "Kingdom Plans"], [ttk.Frame(cfg.top_menu), "Advanced"]]
     for tab in top_menu_tabs:
         cfg.top_menu.add(tab[0], text=tab[1])
@@ -142,7 +146,7 @@ def construct_inventory_menu():
     
     key_item_notebook = ttk.Notebook(inv_top_menu_tab)
     key_item_notebook.grid(column=0, row=7, columnspan=6)
-    key_item_tabs = [["Letters & Memos", "", -1], ["Flying Machine", "", -1], ["Art Pieces", "Art Gallery", 488], ["Wonder Spots", "Book - Wonder Spot", 480], ["UMA Research", "Book - UMA", 481], ["Delicacy Discovery", "Book - Gourmet", 482], ["Animal Rescue", "Book - Animal", 483], ["Hum Discography", "Book - Tunesmith", 484], ["Kingstone Collection", "Book - Jewel", 485], ["Record Smashing", "Book - Records", 486], ["Cutscenes", "Book - Video Archive", -1]]
+    key_item_tabs = [["Letters & Memos", "", -1], ["Flying Machine", "", -1], ["Art Pieces", "Art Gallery", 488], ["Wonder Spots", "Book - Wonder Spot", 480], ["UMA Research", "Book - UMA", 481], ["Delicacy Discovery", "Book - Gourmet", 482], ["Animal Rescue", "Book - Animal", 483], ["Hum Discography", "Book - Tunesmith", 484], ["Kingstone Collection", "Book - Jewel", 485], ["Record Smashing", "Book - Records", 486], ["Cutscenes", "Book - Video Archive", 527]]
     key_item_frames = []
     for tab in key_item_tabs:
         key_item_frames.insert(0, ttk.Frame(key_item_notebook))
