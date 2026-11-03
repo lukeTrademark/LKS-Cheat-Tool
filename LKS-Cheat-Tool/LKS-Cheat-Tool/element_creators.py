@@ -218,6 +218,25 @@ def update_loop(type, pos, var, db=[]):
                 var.set(db[value])
             else:
                 var.set(read_table(db, str(value)))
+    elif cfg.mode == "Save Editor":
+        if type == "bit_flag":
+            var.set(check_flag(pos))
+        elif type == "byte":
+            var.set(cfg.save_file[get_save_pos(pos)])
+        elif type == "word":
+            new = int(cfg.save_file[get_save_pos(pos):get_save_pos(pos)+4].hex(), 16)
+            if var.get() != new:
+                var.set(new)   
+        elif type == "float":
+            var.set(struct.unpack('!f', cfg.save_file[get_save_pos(pos):get_save_pos(pos)+4])[0])
+        elif type == "id":
+            value = int(cfg.save_file[get_save_pos(pos):get_save_pos(pos)+2].hex(), 16)
+            if isinstance(db[0], str):
+                if value >= len(db):
+                    value = len(db) - 1
+                var.set(db[value])
+            else:
+                var.set(read_table(db, str(value)))
 
     looper = partial(update_loop, type, pos, var, db)
     
@@ -228,4 +247,4 @@ def update_loop(type, pos, var, db=[]):
             else:
                 cfg.root.after(1000, looper)
         else:
-            cfg.root.after(10000, looper)
+            cfg.root.after(2000, looper)
