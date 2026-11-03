@@ -41,7 +41,28 @@ def lks_hook():
     else:
         cfg.loading_frame.destroy()
         cfg.live_button.state(['!disabled'])
-        
+        cfg.root.after(1000, hook_upkeep)
+
+def hook_upkeep():
+
+    try:
+        dolphin_memory_engine.read_byte(0x80000000)
+        cfg.root.after(10, hook_upkeep)
+    except RuntimeError:
+        dolphin_memory_engine.un_hook()
+        for tab in cfg.top_menu_tabs:
+            cfg.top_menu.hide(tab[0])
+        cfg.mode = "Waiting"
+        cfg.mode_label.configure(text="No Mode Selected")
+        cfg.loading_frame = ttk.Frame(cfg.main_frame)
+        cfg.loading_frame.grid(column=1, row=1)
+        Label(cfg.loading_frame, text="LKS disconnected! Trying again...").grid(column=0, row=0)
+        bar = ttk.Progressbar(cfg.loading_frame, mode='indeterminate', length=100)
+        bar.grid(column=1, row=0)
+        bar.start(15)
+        cfg.live_button.state(['disabled'])
+        cfg.root.after(1000, lks_hook)
+
 def start_live_mode():
     
     cfg.mode = "Live"
@@ -53,6 +74,9 @@ def start_live_mode():
         construct_citizens_menu()
         construct_kingdom_plan_menu()
         construct_debug_menu()
+    else:
+        for tab in cfg.top_menu_tabs:
+            cfg.top_menu.add(tab[0])
 
 def start_save_editor_mode():
     
@@ -65,6 +89,9 @@ def start_save_editor_mode():
         construct_citizens_menu()
         construct_kingdom_plan_menu()
         construct_debug_menu()
+    else:
+        for tab in cfg.top_menu_tabs:
+            cfg.top_menu.add(tab[0])
 
 def load_save_file():
     
@@ -91,8 +118,8 @@ def construct_top_menu():
     ttk.Separator(cfg.main_frame, orient='horizontal').grid(column=0, row=2, columnspan=5, sticky='ew', pady=5)
     
     cfg.top_menu.grid(column=0, row=3, columnspan=5)
-    top_menu_tabs=[[ttk.Frame(cfg.top_menu), "General"], [ttk.Frame(cfg.top_menu), "Game State"], [ttk.Frame(cfg.top_menu), "Citizens"], [ttk.Frame(cfg.top_menu), "Kingdom Plans"], [ttk.Frame(cfg.top_menu), "Advanced"]]
-    for tab in top_menu_tabs:
+    cfg.top_menu_tabs=[[ttk.Frame(cfg.top_menu), "General"], [ttk.Frame(cfg.top_menu), "Game State"], [ttk.Frame(cfg.top_menu), "Citizens"], [ttk.Frame(cfg.top_menu), "Kingdom Plans"], [ttk.Frame(cfg.top_menu), "Advanced"]]
+    for tab in cfg.top_menu_tabs:
         cfg.top_menu.add(tab[0], text=tab[1])
     
 def construct_inventory_menu():
@@ -130,14 +157,11 @@ def construct_inventory_menu():
     
     standard_inventory = ttk.Labelframe(inv_top_menu_tab, text="Inventory")
     standard_inventory.grid(column=5, row=0, rowspan=7, sticky='nsew')
-    if cfg.mode == "Live":
-        inv_scroll_frame = create_scroll_frame(standard_inventory, 0, 0, 300, 225)
-        inventory_contents = keygen(path.abspath(path.dirname(__file__)+"/Tables/Items"))
-        for i in list(range(100)):
-            view_inv_slot(i, inventory_contents, inv_scroll_frame)
-    elif cfg.mode == "Save Editor":
-        Label(standard_inventory, text="Not Available!").grid(column=0, row=0)
-    
+    inv_scroll_frame = create_scroll_frame(standard_inventory, 0, 0, 300, 225)
+    inventory_contents = keygen(path.abspath(path.dirname(__file__)+"/Tables/Items"))
+    for i in list(range(100)):
+        view_inv_slot(i, inventory_contents, inv_scroll_frame)
+   
     global key_item_images
     key_item_images = []
     key_item_image_names = listdir(path.abspath(path.dirname(__file__)+"/Images/Key_Items"))
@@ -327,21 +351,18 @@ def construct_citizens_menu():
     rg_section.grid(column=2, row=0, rowspan=5, sticky='nsew')
     Label(rg_section, text="Royal Guard Cap").grid(column=0, row=0, sticky='e')
     create_live_entry(rg_section, "cvar", 41).grid(column=1, row=0, sticky='w')
-    if cfg.mode == "Live":
-        rg_scroll_frame = create_scroll_frame(rg_section, 0, 1, 750, 420, 3)
-        rg_subframes = []
-        chartypes = []
-        partials = []
-        for index in list(range(30)):
-            rg_subframes.append(ttk.Labelframe(rg_scroll_frame, text = "Slot " + str(index+1)))
-            slot = 0x92BC4310 + (index * 1736)
-            chartypes.append(IntVar(value=0))
-            partials.append(partial(find_and_build_citizen, chartypes[index], rg_subframes[index], name_key, job_key, item_key))
-            chartypes[index].trace_add('write', partials[index])
-            update_loop("word", slot+648, chartypes[index])
-            rg_subframes[index].grid(column=index%3, row=1+(index//3))
-    elif cfg.mode == "Save Editor":
-        Label(rg_section, text="Not Available!").grid(column=0, row=1, columnspan=2, rowspan=4)
+    rg_scroll_frame = create_scroll_frame(rg_section, 0, 1, 750, 420, 3)
+    rg_subframes = []
+    chartypes = []
+    partials = []
+    for index in list(range(30)):
+        rg_subframes.append(ttk.Labelframe(rg_scroll_frame, text = "Slot " + str(index+1)))
+        slot = 0x92BC4310 + (index * 1736)
+        chartypes.append(IntVar(value=0))
+        partials.append(partial(find_and_build_citizen, chartypes[index], rg_subframes[index], name_key, job_key, item_key))
+        chartypes[index].trace_add('write', partials[index])
+        update_loop("word", slot+648, chartypes[index])
+        rg_subframes[index].grid(column=index%3, row=1+(index//3))
 
 def construct_kingdom_plan_menu():
     

@@ -8,6 +8,7 @@ root.title("LKS Cheat Tool v" + ver_num)
 main_frame = ttk.Frame(root, padding=10)
 main_frame.grid()
 top_menu = ttk.Notebook(main_frame)
+top_menu_tabs = []
 
 curr_chapter = IntVar()
 castle_level = IntVar()

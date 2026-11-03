@@ -198,45 +198,46 @@ def teleport(var_array, coord_array, grid_array = []):
 
 
 def update_loop(type, pos, var, db=[]):
-
-    if cfg.mode == "Live":
-        if type == "bit_flag":
-            var.set(check_flag(pos))
-        elif type == "byte":
-            var.set(dolphin_memory_engine.read_byte(get_save_pos(pos)))
-        elif type == "word":
-            new = dolphin_memory_engine.read_word(get_save_pos(pos))
-            if var.get() != new:
-                var.set(new)   
-        elif type == "float":
-            var.set(dolphin_memory_engine.read_float(get_save_pos(pos)))
-        elif type == "id":
-            value = int(dolphin_memory_engine.read_bytes(get_save_pos(pos), 2).hex(), 16)
-            if isinstance(db[0], str):
-                if value >= len(db):
-                    value = len(db) - 1
-                var.set(db[value])
-            else:
-                var.set(read_table(db, str(value)))
-    elif cfg.mode == "Save Editor":
-        if type == "bit_flag":
-            var.set(check_flag(pos))
-        elif type == "byte":
-            var.set(cfg.save_file[get_save_pos(pos)])
-        elif type == "word":
-            new = int(cfg.save_file[get_save_pos(pos):get_save_pos(pos)+4].hex(), 16)
-            if var.get() != new:
-                var.set(new)   
-        elif type == "float":
-            var.set(struct.unpack('!f', cfg.save_file[get_save_pos(pos):get_save_pos(pos)+4])[0])
-        elif type == "id":
-            value = int(cfg.save_file[get_save_pos(pos):get_save_pos(pos)+2].hex(), 16)
-            if isinstance(db[0], str):
-                if value >= len(db):
-                    value = len(db) - 1
-                var.set(db[value])
-            else:
-                var.set(read_table(db, str(value)))
+    
+    if (get_save_pos(pos)) != -1:
+        if cfg.mode == "Live":
+            if type == "bit_flag":
+                var.set(check_flag(pos))
+            elif type == "byte":
+                var.set(dolphin_memory_engine.read_byte(get_save_pos(pos)))
+            elif type == "word":
+                new = dolphin_memory_engine.read_word(get_save_pos(pos))
+                if var.get() != new:
+                    var.set(new)   
+            elif type == "float":
+                var.set(dolphin_memory_engine.read_float(get_save_pos(pos)))
+            elif type == "id":
+                value = int(dolphin_memory_engine.read_bytes(get_save_pos(pos), 2).hex(), 16)
+                if isinstance(db[0], str):
+                    if value >= len(db):
+                        value = len(db) - 1
+                    var.set(db[value])
+                else:
+                    var.set(read_table(db, str(value)))
+        elif cfg.mode == "Save Editor":
+            if type == "bit_flag":
+                var.set(check_flag(pos))
+            elif type == "byte":
+                var.set(cfg.save_file[get_save_pos(pos)])
+            elif type == "word":
+                new = int(cfg.save_file[get_save_pos(pos):get_save_pos(pos)+4].hex(), 16)
+                if var.get() != new:
+                    var.set(new)   
+            elif type == "float":
+                var.set(struct.unpack('!f', cfg.save_file[get_save_pos(pos):get_save_pos(pos)+4])[0])
+            elif type == "id":
+                value = int(cfg.save_file[get_save_pos(pos):get_save_pos(pos)+2].hex(), 16)
+                if isinstance(db[0], str):
+                    if value >= len(db):
+                        value = len(db) - 1
+                    var.set(db[value])
+                else:
+                    var.set(read_table(db, str(value)))
 
     looper = partial(update_loop, type, pos, var, db)
     

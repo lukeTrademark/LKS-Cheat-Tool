@@ -137,21 +137,22 @@ def cflag_readout(*args):
 
 def id_write(new_result, db, pos, err=0):
     
-    if not(isinstance(new_result, str)):
-        new = new_result.get()
-    else:
-        new = new_result
-    
-    if len(db) > 2:
-        new_id = db.index(new)
-    else:
-        new_id = db[0][db[1].index(new)]
-    
-    if cfg.mode == "Live":
-        dolphin_memory_engine.write_byte(get_save_pos(pos), int(new_id) // 256)
-        dolphin_memory_engine.write_byte(get_save_pos(pos+1), int(new_id) % 256)
-    elif cfg.mode == "Save Editor":
-        cfg.save_file[get_save_pos(pos):get_save_pos(pos)+2] = struct.pack('!h', int(new_id))
+    if get_save_pos(pos) != -1:
+        if not(isinstance(new_result, str)):
+            new = new_result.get()
+        else:
+            new = new_result
+        
+        if len(db) > 2:
+            new_id = db.index(new)
+        else:
+            new_id = db[0][db[1].index(new)]
+        
+        if cfg.mode == "Live":
+            dolphin_memory_engine.write_byte(get_save_pos(pos), int(new_id) // 256)
+            dolphin_memory_engine.write_byte(get_save_pos(pos+1), int(new_id) % 256)
+        elif cfg.mode == "Save Editor":
+            cfg.save_file[get_save_pos(pos):get_save_pos(pos)+2] = struct.pack('!h', int(new_id))
 
 def float_write(*args):
     
@@ -208,11 +209,11 @@ def set_building(i, mode):
 
 def get_chapter():
     
-    chapter_flag = 300
-    
-    for i in list(range(6)):
-        if check_flag(chapter_flag + i):
-            cfg.curr_chapter.set(i+1)
+    if (cfg.mode == "Live") | (cfg.mode == "Save Editor"):
+        chapter_flag = 300
+        for i in list(range(6)):
+            if check_flag(chapter_flag + i):
+                cfg.curr_chapter.set(i+1)
     
     cfg.root.after(1000, get_chapter)
             
@@ -230,14 +231,14 @@ def set_chapter(*args):
 
 def get_castle_level():
     
-    castle_level_flag = 186
-    
-    for i in list(range(3)):
-        if check_flag(castle_level_flag + i):
-            cfg.castle_level.set(i)
+    if (cfg.mode == "Live") | (cfg.mode == "Save Editor"):
+        castle_level_flag = 186
+        for i in list(range(3)):
+            if check_flag(castle_level_flag + i):
+                cfg.castle_level.set(i)
     
     cfg.root.after(1000, get_castle_level)
-            
+
 def set_castle_level(*args):
     
     new_level = args[0]
