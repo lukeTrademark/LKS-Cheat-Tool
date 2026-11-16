@@ -6,6 +6,7 @@ import tkinter
 from tkinter import *
 from tkinter import ttk
 from functools import partial
+import dolphin_memory_engine
 
 def create_flag_box(flag, var, frame, name="none", image=""):
     
@@ -47,10 +48,10 @@ def create_live_entry(frame, mode, pos, state=['normal']):
     else:
         if mode == "word":
             bol = IntVar()
-            bol.trace_add("write", partial(word_write, bol, pos))
+            bol.trace_add("write", partial(word_write, bol, pos, "signed"))
             if cfg.mode == "Save Editor":
                 bol.set(int(cfg.save_file[get_save_pos(pos):get_save_pos(pos)+4].hex(), 16))
-            update_loop("word", pos, bol)
+            update_loop("word", pos, bol, [], "signed")
         elif mode == "float":
             bol = DoubleVar()
             bol.trace_add("write", partial(float_write, bol, pos))
@@ -197,18 +198,24 @@ def teleport(var_array, coord_array, grid_array = []):
         dolphin_memory_engine.write_bytes(var_array[0]+28, dolphin_memory_engine.read_bytes(get_save_pos(0x903f6b50), 16))
 
 
-def update_loop(type, pos, var, db=[]):
+def update_loop(type, pos, var, db=[], state=""):
     
     if (get_save_pos(pos)) != -1:
         if cfg.mode == "Live":
             if type == "bit_flag":
                 var.set(check_flag(pos))
             elif type == "byte":
-                var.set(dolphin_memory_engine.read_byte(get_save_pos(pos)))
+                new = dolphin_memory_engine.read_byte(get_save_pos(pos))
+                if (state == "signed") & (new >= pow(2, 7)):
+                    new -= pow(2, 8)
+                if var.get() != new:
+                    var.set(new)
             elif type == "word":
                 new = dolphin_memory_engine.read_word(get_save_pos(pos))
+                if (state == "signed") & (new >= pow(2, 31)):
+                    new -= pow(2, 32)
                 if var.get() != new:
-                    var.set(new)   
+                    var.set(new)
             elif type == "float":
                 var.set(dolphin_memory_engine.read_float(get_save_pos(pos)))
             elif type == "id":
@@ -223,9 +230,15 @@ def update_loop(type, pos, var, db=[]):
             if type == "bit_flag":
                 var.set(check_flag(pos))
             elif type == "byte":
-                var.set(cfg.save_file[get_save_pos(pos)])
+                new = cfg.save_file[get_save_pos(pos)]
+                if (state == "signed") & (new >= pow(2, 7)):
+                    new -= pow(2, 8)
+                if var.get() != new:
+                    var.set(new)   
             elif type == "word":
                 new = int(cfg.save_file[get_save_pos(pos):get_save_pos(pos)+4].hex(), 16)
+                if (state == "signed") & (new >= pow(2, 31)):
+                    new -= pow(2, 32)
                 if var.get() != new:
                     var.set(new)   
             elif type == "float":
@@ -239,7 +252,7 @@ def update_loop(type, pos, var, db=[]):
                 else:
                     var.set(read_table(db, str(value)))
 
-    looper = partial(update_loop, type, pos, var, db)
+    looper = partial(update_loop, type, pos, var, db, state)
     
     if (type == "bit_flag") | (len(var.trace_info()) > 0):
         if cfg.mode == "Live":

@@ -168,7 +168,10 @@ def word_write(*args):
 
     var = args[0].get()
     pos = get_save_pos(args[1])
+    is_signed = args[2] == "signed"
     
+    if is_signed & (var < 0):
+        var += pow(2, 32)
     if cfg.mode == "Live":
         dolphin_memory_engine.write_word(pos, var)
     else:
