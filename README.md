@@ -27,6 +27,9 @@ A: The check boxes are for things certainly important enough to add functionalit
 Q: I'm trying to change a citizen's position in Live Mode, but the numbers keep fighting me!  
 A: That's because the position data updates live in Live Mode! (That's, like, the point.) Pause the game in Dolphin if you need an easier time moving people with your mind.  
 
+Q: When I started one of the modes, nothing appeared and some of the top row buttons vanished!  
+A: That's because you were moving the window around when the options appear, and the tool didn't resize right. Resizing the window yourself will let the options show themselves.
+
 Q: I'm on Mac! How can I use this?  
 A: Uhh... Well, if you install the source code and dolphin-memory-engine, you can run it through the command line? (Just `python __init__.py`) If you install pyinstaller too, you could also build your own proper executable file. (`pyinstaller lks-cheat-tool.spec`)  
 
