@@ -3,7 +3,7 @@ from tkinter import ttk
 from tkinter import *
 
 root = Tk()
-ver_num = "1.0.0b"
+ver_num = "1.0.0"
 root.title("LKS Cheat Tool v" + ver_num)
 main_frame = ttk.Frame(root, padding=10)
 main_frame.grid()
