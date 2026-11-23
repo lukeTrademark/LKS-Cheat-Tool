@@ -2,6 +2,12 @@
 
 LKS Cheat Tool is a program that hooks onto the Wii game Little King's Story and allows you to modify various elements of the game, without having to know exactly what bits and pieces of memory mean what things (and if you do, you could do even more!)
 
+## Modes
+
+The LKS Cheat Tool has two modes, **Live Mode** and **Save Editor**.  
+To select **Live Mode**, have an instance of a release version of Little King's Story (be japanese at your own discresion, it's not tested) and press the "Start Live Mode" button.  
+To select **Save Edtior**, click the "Load Save File" button, select a Little King's Story save file, and click "Start Save Editor". When done save editing, be sure to click "Save Current File", otherwise your tinkerings will vanish when you close the tool!
+
 ## Features
 
 **General**: Edit your quantity of Bol, activate/deactivate a variety of key items and book entries, place arbitrary items inside your inventory, etc. You can even increase your inventory's capacity and use those new slots! (LKS only prepared for up to 100, though, and it also doesn't play nice when slots aren't filled sequentially...)  
@@ -18,11 +24,14 @@ A: So...the LKS devs were complete freaks, and made a ton of disparate objects u
 Q: Why is this check box/entry box greyed out?  
 A: The check boxes are for things certainly important enough to add functionality for, but whose flags are currently unknown. Similar deal for entry boxes, except those are for values that don't play nice with being edited.  
 
-Q: I'm trying to change a citizen's position, but the numbers keep fighting me!  
-A: That's because the position data is updating live! Pause the game in Dolphin if you need an easier time moving people with your mind.  
+Q: I'm trying to change a citizen's position in Live Mode, but the numbers keep fighting me!  
+A: That's because the position data updates live in Live Mode! (That's, like, the point.) Pause the game in Dolphin if you need an easier time moving people with your mind.  
 
 Q: I'm on Mac! How can I use this?  
 A: Uhh... Well, if you install the source code and dolphin-memory-engine, you can run it through the command line? (Just `python __init__.py`) If you install pyinstaller too, you could also build your own proper executable file. (`pyinstaller lks-cheat-tool.spec`)  
+
+Q: Live Mode isn't noticing that LKS is open!  
+A: Ugh. Well, first, make sure you're in a release version of LKS. If you're Japanese, try not being Japanese for a bit. If it *still* doesn't work, then...well, one person I was testing with just had Live Mode never work for them, so. There's that. Save Editor should still work fine, at the very least. 
 
 Q: It won't even freaking boot!!  
 A: uuuuuuuuuugh i probably biffed something with the windows executable. *again.* that's a pretty urgent problem, so just, like, @ me in [the LKS discord server](https://discord.gg/t9chhfNYxB), my username's ιυκε™. if you have some other, less pressing, issue, then, like, make an issue. like the thing. from, github?  
